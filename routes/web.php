@@ -13,6 +13,7 @@ use App\Http\Controllers\produkController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\rolePermissionController;
 use App\Http\Controllers\templateChatController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\tokoController;
 use App\Http\Controllers\transactionController;
 use App\Http\Controllers\varianController;
@@ -54,6 +55,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/Promo/{id}', [PromoController::class, 'update'])->name('promos.update');
     Route::delete('/Promo/{id}', [PromoController::class, 'destroy'])->name('promos.destroy');
 
+    //Testimonial
+    Route::get('Testimonial', [TestimonialController::class, 'index'])->name('testimonial.index');
+    Route::get('Testimonial/create', [TestimonialController::class, 'create'])->name('testimonial.create');
+    Route::post('Testimonial', [TestimonialController::class, 'store'])->name('testimonial.store');
+    Route::get('/Testimonial/{id}/edit', [TestimonialController::class, 'edit'])->name('testimonial.edit');
+    Route::put('/Testimonial/{id}', [TestimonialController::class, 'update'])->name('testimonial.update');
+    Route::delete('/Testimonial/{id}', [TestimonialController::class, 'destroy'])->name('testimonial.destroy');
 
     // Role Management
     Route::get('/AccessManagement', [rolePermissionController::class, 'index']);

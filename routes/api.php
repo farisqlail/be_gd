@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\API\get_products_by_shop;
 use App\Http\Controllers\API\getProduct;
+use App\Http\Controllers\API\PromoAPI;
+use App\Http\Controllers\API\TestimonialAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/get_detail_products', [getProduct::class,'index']);
 Route::get('/get_detail_products/{id}', [getProduct::class,'show']);
+
+Route::get('/promo', [PromoAPI::class,'index']);
+
+Route::get('/testimonial', [TestimonialAPI::class, 'index']);

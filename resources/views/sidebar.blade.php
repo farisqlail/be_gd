@@ -19,6 +19,10 @@
     <a href="/Promo"><i class="fa fa-gift"></i>
         <span>Promo</span></a>
 </li>
+<li class="{{ Request::is('Testimonial') ? 'active' : '' }} {{ Request::is('Testimonial/*') ? 'active' : '' }}">
+    <a href="/Testimonial"><i class="fa fa-star"></i>
+        <span>Testimonial</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}
@@ -42,27 +46,28 @@
                     class="fa fa-circle-o"></i> Harga
                 Transaksi</a></li>
         {{-- <li class="{{ Request::is('*/PaymentMethod') ? 'active' : '' }}"><a href="/MasterData/PaymentMethod"><i
-                    class="fa fa-circle-o"></i> Payment Method</a>
-        </li> --}}
-        <li class="treeview {{ Request::is('MasterData/Template/*') ? 'active' : '' }}">
-            <a href="#"><i class="fa fa-circle-o"></i> Template Chat
-                <span class="pull-right-container">
-                    <i class="fa fa-angle-left pull-right"></i>
-                </span>
-            </a>
-            <ul class="treeview-menu">
-                {{-- <li class="{{ Request::is('*/Template/OpeningChat') ? 'active' : '' }}"><a
-                        href="/MasterData/Template/OpeningChat"><i class="fa fa-circle-o"></i>Opening Chat</a></li> --}}
-                <li class="{{ Request::is('*/Template/PemberianAkun') ? 'active' : '' }}"><a
-                        href="/MasterData/Template/PemberianAkun"><i class="fa fa-circle-o"></i>Pemberian Akun</a>
-                </li>
-                {{-- <li class="{{ Request::is('*/Template/ErrorHandling') ? 'active' : '' }}"><a
-                        href="/MasterData/Template/ErrorHandling"><i class="fa fa-circle-o"></i>Error Handling</a>
-                </li> --}}
-            </ul>
-        </li>
+                class="fa fa-circle-o"></i> Payment Method</a>
+</li> --}}
+<li class="treeview {{ Request::is('MasterData/Template/*') ? 'active' : '' }}">
+    <a href="#"><i class="fa fa-circle-o"></i> Template Chat
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+        </span>
+    </a>
+    <ul class="treeview-menu">
+        {{-- <li class="{{ Request::is('*/Template/OpeningChat') ? 'active' : '' }}"><a
+            href="/MasterData/Template/OpeningChat"><i class="fa fa-circle-o"></i>Opening Chat</a>
+</li> --}}
+<li class="{{ Request::is('*/Template/PemberianAkun') ? 'active' : '' }}"><a
+        href="/MasterData/Template/PemberianAkun"><i class="fa fa-circle-o"></i>Pemberian Akun</a>
+</li>
+{{-- <li class="{{ Request::is('*/Template/ErrorHandling') ? 'active' : '' }}"><a
+    href="/MasterData/Template/ErrorHandling"><i class="fa fa-circle-o"></i>Error Handling</a>
+</li> --}}
+</ul>
+</li>
 
-    </ul>
+</ul>
 </li>
 {{-- @endcan
 @can('Akun') --}}
