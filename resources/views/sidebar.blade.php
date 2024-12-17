@@ -15,6 +15,10 @@
     <a href="/Member"><i class="fa fa-user"></i>
         <span>Member</span></a>
 </li>
+<li class="{{ Request::is('Promo') ? 'active' : '' }} {{ Request::is('Promo/*') ? 'active' : '' }}">
+    <a href="/Promo"><i class="fa fa-gift"></i>
+        <span>Promo</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\price;
-use App\Models\Produks;
+use App\Models\product;
 use Illuminate\Http\Request;
 
 class getProduct extends Controller
@@ -47,10 +47,8 @@ class getProduct extends Controller
      */
     public function show(string $id)
     {
-        // Ambil data produk berdasarkan ID
-        $product = Produks::find($id);
+        $product = product::find($id);
 
-        // Periksa apakah data ditemukan
         if (!$product) {
             return response()->json([
                 'message' => 'Product not found',
