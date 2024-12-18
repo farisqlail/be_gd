@@ -23,6 +23,10 @@
     <a href="/Testimonial"><i class="fa fa-star"></i>
         <span>Testimonial</span></a>
 </li>
+<li class="{{ Request::is('customers') ? 'active' : '' }} {{ Request::is('customers/*') ? 'active' : '' }}">
+    <a href="/customers"><i class="fa fa-star"></i>
+        <span>Customer</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\CustomersAPI;
 use App\Http\Controllers\API\get_products_by_shop;
 use App\Http\Controllers\API\getProduct;
 use App\Http\Controllers\API\PromoAPI;
@@ -29,3 +30,5 @@ Route::get('/promo', [PromoAPI::class,'index']);
 
 Route::get('/testimonial', [TestimonialAPI::class, 'index']);
 Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);
+
+Route::apiResource('customers', CustomersAPI::class);

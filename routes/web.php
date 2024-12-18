@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\akunController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\hargaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\jenisController;
@@ -62,6 +63,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/Testimonial/{id}/edit', [TestimonialController::class, 'edit'])->name('testimonial.edit');
     Route::put('/Testimonial/{id}', [TestimonialController::class, 'update'])->name('testimonial.update');
     Route::delete('/Testimonial/{id}', [TestimonialController::class, 'destroy'])->name('testimonial.destroy');
+
+    //Customer
+    Route::resource('customers', CustomerController::class);
 
     // Role Management
     Route::get('/AccessManagement', [rolePermissionController::class, 'index']);
