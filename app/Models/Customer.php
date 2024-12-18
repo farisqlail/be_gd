@@ -14,6 +14,7 @@ class Customer extends Model
         'email',
         'password',
         'number',
-        'point'
+        'point',
+        'api_token',
     ];
 }

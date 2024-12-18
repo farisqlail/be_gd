@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('number');
             $table->integer('point')->default(0);
+            $table->string('api_token')->nullable();
             $table->timestamps();
         });
     }

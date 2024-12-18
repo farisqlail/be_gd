@@ -6,44 +6,62 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Str;
 
 class CustomersAPI extends Controller
 {
     public function login(Request $request)
     {
-        try {
-            // Validate input
-            $validated = $request->validate([
-                'email' => 'required|email',
-                'password' => 'required|string|min:6',
-            ]);
-
-            // Find customer by email
-            $customer = Customer::where('email', $validated['email'])->first();
-
-            if (!$customer || !Hash::check($validated['password'], $customer->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid email or password',
-                ], 401);
-            }
-
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+    
+        $customer = Customer::where('email', $validated['email'])->first();
+    
+        if ($customer && password_verify($validated['password'], $customer->password)) {
+            // Generate a unique token using UUID
+            $token = (string) Str::uuid();
+    
+            // Simpan token ke database
+            $customer->update(['api_token' => $token]);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
                 'data' => [
                     'customer' => $customer,
-                ],
+                    'token' => $token,
+                ]
             ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => $th->getMessage(),
-            ], 500);
         }
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid email or password',
+        ], 401);
     }
+
+    public function logout(Request $request)
+    {
+        $token = $request->header('Authorization');
+        $customer = Customer::where('api_token', $token)->first();
+
+        if ($customer) {
+            $customer->update(['api_token' => null]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout successful',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid token',
+        ], 401);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -98,10 +116,21 @@ class CustomersAPI extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function profile(Request $request)
     {
         try {
-            $customer = Customer::findOrFail($id);
+            // Ambil token dari header
+            $token = $request->header('Authorization');
+
+            // Cari customer berdasarkan token
+            $customer = Customer::where('api_token', $token)->first();
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized or token invalid',
+                ], 401);
+            }
 
             return response()->json([
                 'success' => true,
@@ -111,8 +140,8 @@ class CustomersAPI extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => 'Customer not found',
-            ], 404);
+                'message' => $th->getMessage(),
+            ], 500);
         }
     }
 

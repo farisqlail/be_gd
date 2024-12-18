@@ -23,13 +23,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/get_detail_products', [getProduct::class,'index']);
-Route::get('/get_detail_products/{id}', [getProduct::class,'show']);
+Route::get('/get_detail_products', [getProduct::class, 'index']);
+Route::get('/get_detail_products/{id}', [getProduct::class, 'show']);
 
-Route::get('/promo', [PromoAPI::class,'index']);
+Route::get('/promo', [PromoAPI::class, 'index']);
 
 Route::get('/testimonial', [TestimonialAPI::class, 'index']);
 Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);
 
 Route::apiResource('customers', CustomersAPI::class);
 Route::post('customers/login', [CustomersAPI::class, 'login']);
+
+Route::get('/profile/{id}', [CustomersAPI::class, 'profile']);
+// Route::middleware('auth.token')->group(function () {
+// });
