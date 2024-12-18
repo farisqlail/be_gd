@@ -28,3 +28,4 @@ Route::get('/get_detail_products/{id}', [getProduct::class,'show']);
 Route::get('/promo', [PromoAPI::class,'index']);
 
 Route::get('/testimonial', [TestimonialAPI::class, 'index']);
+Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);

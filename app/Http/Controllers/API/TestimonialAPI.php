@@ -15,7 +15,7 @@ class TestimonialAPI extends Controller
     {
         try {
             $testimonial = Testimonial::all();
-            
+
             return response()->json([
                 'testimonial' => $testimonial
             ], 200);
@@ -27,27 +27,29 @@ class TestimonialAPI extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|max:255',
+            'description' => 'required',
+        ]);
+
+        Testimonial::create([
+            'name' => $request->name,
+            'deskripsi' => $request->description,
+        ]);
+
+        return response()->json([
+            'success' => "Berhasil mengirim ulasan"
+        ], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-    }
+    public function show(string $id) {}
 
     /**
      * Show the form for editing the specified resource.
