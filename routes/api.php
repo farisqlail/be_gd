@@ -32,3 +32,4 @@ Route::get('/testimonial', [TestimonialAPI::class, 'index']);
 Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);
 
 Route::apiResource('customers', CustomersAPI::class);
+Route::post('customers/login', [CustomersAPI::class, 'login']);

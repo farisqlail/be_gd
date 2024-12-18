@@ -5,9 +5,45 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class CustomersAPI extends Controller
 {
+    public function login(Request $request)
+    {
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string|min:6',
+            ]);
+
+            // Find customer by email
+            $customer = Customer::where('email', $validated['email'])->first();
+
+            if (!$customer || !Hash::check($validated['password'], $customer->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid email or password',
+                ], 401);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'data' => [
+                    'customer' => $customer,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
     /**
      * Display a listing of the resource.
      */

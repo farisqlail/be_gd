@@ -24,7 +24,7 @@
         <span>Testimonial</span></a>
 </li>
 <li class="{{ Request::is('customers') ? 'active' : '' }} {{ Request::is('customers/*') ? 'active' : '' }}">
-    <a href="/customers"><i class="fa fa-star"></i>
+    <a href="/customers"><i class="fa fa-users"></i>
         <span>Customer</span></a>
 </li>
 {{-- @endcan
