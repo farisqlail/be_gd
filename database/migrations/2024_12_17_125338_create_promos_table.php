@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('link_video');
             $table->text('deskripsi');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

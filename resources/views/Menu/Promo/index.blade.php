@@ -24,6 +24,7 @@ Master Promo
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>image</th>
                             <th>Nama Promo</th>
                             <th>Link Video</th>
                             <th>Deskripsi</th>
@@ -34,6 +35,12 @@ Master Promo
                         @foreach ($promos as $index => $promo)
                         <tr>
                             <td>{{ $index + 1 }}</td>
+                            <td>
+                                @if ($promo->image)
+                                <img src="{{ asset('storage/' . $promo->image) }}" alt="{{ $promo->title }}" style="max-width: 100px;">
+                                @endif
+
+                            </td>
                             <td>{{ $promo->title }}</td>
                             <td>
                                 <a href="{{ $promo->link_video }}" target="_blank">{{ $promo->link_video }}</a>

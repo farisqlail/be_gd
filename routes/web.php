@@ -18,6 +18,7 @@ use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\tokoController;
 use App\Http\Controllers\transactionController;
 use App\Http\Controllers\varianController;
+use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\XenditController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Customer
     Route::resource('customers', CustomerController::class);
+
+    //Voucher
+    Route::resource('vouchers', VoucherController::class);
 
     // Role Management
     Route::get('/AccessManagement', [rolePermissionController::class, 'index']);

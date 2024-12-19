@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Promo;
+use Illuminate\Support\Facades\Storage;
 
 class PromoController extends Controller
 {
@@ -33,11 +34,18 @@ class PromoController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'link_video' => 'required|url',
+            'link_video' => 'nullable|url',
             'deskripsi' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('promos', 'public');
+            $validatedData['image'] = $imagePath;
+        }
+
         Promo::create($validatedData);
+
         return redirect()->route('promos.index')->with('success', 'Promo created successfully.');
     }
 
@@ -47,23 +55,32 @@ class PromoController extends Controller
         return view('Menu.Promo.edit', compact('promo'));
     }
 
-    // Update an existing promo
     public function update(Request $request, $id)
     {
-        $promo = Promo::find($id);
-        if (!$promo) {
-            return redirect()->back()->with('error', 'Promo not found');
-        }
-
+        $promo = Promo::findOrFail($id);
+    
         $validatedData = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'link_video' => 'sometimes|url',
-            'deskripsi' => 'sometimes|string',
+            'title' => 'required|string|max:255',
+            'link_video' => 'required|url',
+            'deskripsi' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi gambar
         ]);
-
+    
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($promo->image) {
+                Storage::delete('public/' . $promo->image);
+            }
+    
+            // Simpan gambar baru
+            $validatedData['image'] = $request->file('image')->store('promos', 'public');
+        }
+    
         $promo->update($validatedData);
-        return redirect()->route('promos.index')->with('success', 'Promo updated successfully');
+    
+        return redirect()->route('promos.index')->with('success', 'Promo updated successfully.');
     }
+    
 
     public function destroy($id)
     {

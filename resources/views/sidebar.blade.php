@@ -19,6 +19,10 @@
     <a href="/Promo"><i class="fa fa-gift"></i>
         <span>Promo</span></a>
 </li>
+<li class="{{ Request::is('vouchers') ? 'active' : '' }} {{ Request::is('vouchers/*') ? 'active' : '' }}">
+    <a href="/vouchers"><i class="fa fa-percent"></i>
+        <span>Vouchers</span></a>
+</li>
 <li class="{{ Request::is('Testimonial') ? 'active' : '' }} {{ Request::is('Testimonial/*') ? 'active' : '' }}">
     <a href="/Testimonial"><i class="fa fa-star"></i>
         <span>Testimonial</span></a>

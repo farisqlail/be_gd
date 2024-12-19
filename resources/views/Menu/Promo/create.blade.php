@@ -15,7 +15,7 @@ Add Promo
     <div class="col-xs-12">
         <div class="box">
             <div class="box-body">
-                <form action="{{ route('promos.store') }}" method="POST">
+                <form action="{{ route('promos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
                         <label class="form-label">Nama Promo</label>
@@ -28,6 +28,10 @@ Add Promo
                     <div class="form-group">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
                         <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" placeholder="Deskripsi promo..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image" class="form-label">Gambar Promo</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
                     </div>
 
                     <button type="submit" class="btn btn-primary">Simpan</button>

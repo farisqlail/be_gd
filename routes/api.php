@@ -5,6 +5,7 @@ use App\Http\Controllers\API\get_products_by_shop;
 use App\Http\Controllers\API\getProduct;
 use App\Http\Controllers\API\PromoAPI;
 use App\Http\Controllers\API\TestimonialAPI;
+use App\Http\Controllers\API\VoucherAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,9 +25,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/get_detail_products', [getProduct::class, 'index']);
+Route::get('/variances', [getProduct::class, 'getVariances']);
 Route::get('/get_detail_products/{id}', [getProduct::class, 'show']);
 
 Route::get('/promo', [PromoAPI::class, 'index']);
+
+Route::get('/vouchers', [VoucherAPI::class, 'index']);
 
 Route::get('/testimonial', [TestimonialAPI::class, 'index']);
 Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);
@@ -34,6 +38,6 @@ Route::post('/testimonial/add', [TestimonialAPI::class, 'store']);
 Route::apiResource('customers', CustomersAPI::class);
 Route::post('customers/login', [CustomersAPI::class, 'login']);
 
-Route::get('/profile/{id}', [CustomersAPI::class, 'profile']);
+Route::get('/profile', [CustomersAPI::class, 'profile']);
 // Route::middleware('auth.token')->group(function () {
 // });

@@ -13,5 +13,6 @@ class Promo extends Model
         'title',
         'link_video',
         'deskripsi',
+        'image',
     ];
 }

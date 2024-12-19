@@ -15,7 +15,7 @@ Edit Promo
     <div class="col-xs-12">
         <div class="box">
             <div class="box-body">
-                <form action="{{ route('promos.update', $promo->id) }}" method="POST">
+                <form action="{{ route('promos.update', $promo->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="form-group">
@@ -29,6 +29,14 @@ Edit Promo
                     <div class="form-group">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
                         <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required>{{ $promo->deskripsi }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Upload Gambar</label>
+                        <input type="file" name="image" class="form-control">
+                        @if ($promo->image)
+                        <p class="mt-2">Gambar saat ini:</p>
+                        <img src="{{ asset('storage/' . $promo->image) }}" alt="{{ $promo->title }}" style="max-width: 150px;">
+                        @endif
                     </div>
 
                     <button type="submit" class="btn btn-success">Update</button>
