@@ -17,7 +17,7 @@ class getProduct extends Controller
     {
         try {
             $products = price::get_products();
-            
+
             return response()->json([
                 'products' => $products
             ], 200);
@@ -61,18 +61,21 @@ class getProduct extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(String $id)
     {
-        $product = product::find($id);
 
-        if (!$product) {
+        $price = Price::with(['product.variance'])
+            ->where('id', $id)
+            ->first();
+
+        if (!$price) {
             return response()->json([
-                'message' => 'Product not found',
+                'message' => 'Price not found',
             ], 404);
         }
 
         return response()->json([
-            'product' => $product,
+            'price' => $price,
         ], 200);
     }
 

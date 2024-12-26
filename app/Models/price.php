@@ -10,8 +10,9 @@ class price extends Model
 {
     use HasFactory;
 
-    public static function indexPrice($idVarian=null,$idToko=null,$idPlatform=null,$idPrice=null){
-        $query='
+    public static function indexPrice($idVarian = null, $idToko = null, $idPlatform = null, $idPrice = null)
+    {
+        $query = '
             with detailProduct as (
                 select p.*,pt.type_name,v.variance_name, concat(variance_name," ",type_name," ",durasi," ",ket_durasi) as detail
                 from products p join variances v on p.id_varian=v.id
@@ -30,24 +31,25 @@ class price extends Model
         ';
 
         if ($idVarian) {
-            $query .=' and id_varian='.$idVarian;
+            $query .= ' and id_varian=' . $idVarian;
         }
 
         if ($idToko) {
-            $query .=' and id_toko='.$idToko;
+            $query .= ' and id_toko=' . $idToko;
         }
         if ($idPlatform) {
-            $query .=' and id_platform='.$idPlatform;
+            $query .= ' and id_platform=' . $idPlatform;
         }
 
         if ($idPrice) {
-            $query .=' and p.id='.$idPrice;
+            $query .= ' and p.id=' . $idPrice;
         }
         return DB::select($query);
     }
 
-    public static function get_products(){
-        $query='
+    public static function get_products()
+    {
+        $query = '
         with detailProduct as (
             select p.*,pt.type_name,v.variance_name, concat(variance_name," ",type_name," ",durasi," ",ket_durasi) as detail
             from products p join variances v on p.id_varian=v.id
@@ -65,6 +67,11 @@ class price extends Model
         where p.deleted=false
     ';
 
-    return DB::select($query);
+        return DB::select($query);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(product::class, 'id_produk', 'id');
     }
 }
