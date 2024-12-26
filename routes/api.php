@@ -6,6 +6,7 @@ use App\Http\Controllers\API\getProduct;
 use App\Http\Controllers\API\PromoAPI;
 use App\Http\Controllers\API\TestimonialAPI;
 use App\Http\Controllers\API\VoucherAPI;
+use App\Http\Controllers\API\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +40,9 @@ Route::apiResource('customers', CustomersAPI::class);
 Route::post('customers/login', [CustomersAPI::class, 'login']);
 
 Route::get('/profile', [CustomersAPI::class, 'profile']);
+
+Route::post('/create-invoice', [PaymentController::class, 'createInvoice']);
+Route::post('/pay', [PaymentController::class, 'createEWalletInvoice']);
+Route::get('/get-invoice/{invoiceId}', [PaymentController::class, 'getInvoice']);
 // Route::middleware('auth.token')->group(function () {
 // });
