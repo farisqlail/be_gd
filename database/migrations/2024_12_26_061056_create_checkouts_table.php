@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('checkouts', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('id_price');
+            $table->bigInteger("id_promo")->nullable();
             $table->string("customer_name");
+            $table->string("email_customer");
+            $table->string("phone_customer");
             $table->string("transaction_code");
             $table->bigInteger("amount");
             $table->string("payment_status");
-            $table->string("promo")->nullable();
             $table->timestamps();
         });
     }

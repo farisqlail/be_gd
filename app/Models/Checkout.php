@@ -11,10 +11,12 @@ class Checkout extends Model
 
     protected $fillable = [
         'id_price',
+        'id_promo',
         'customer_name',
+        'email_customer',
+        'phone_customer',
         'transaction_code',
         'amount',
-        'payment_status',
-        'promo'
+        'payment_status'
     ];
 }
