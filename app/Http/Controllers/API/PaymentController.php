@@ -7,8 +7,6 @@ use App\Models\Checkout;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\services\XenditService;
-use Xendit\Configuration;
-use Xendit\Payout\PayoutApi;
 
 class PaymentController extends Controller
 {
@@ -46,6 +44,7 @@ class PaymentController extends Controller
             Checkout::insert([
                 'amount' => $amount,
                 'id_price' => $validated['id_price'],
+                'id_user' => $request->get('id_user'),
                 'id_promo' => $validated['id_promo'],
                 'customer_name' => $validated['customer_name'],
                 'email_customer' => $validated['email_customer'],
@@ -101,7 +100,6 @@ class PaymentController extends Controller
         }
     }
 
-
     public function handleXenditCallback(Request $request)
     {
         try {
@@ -118,19 +116,18 @@ class PaymentController extends Controller
             }
 
             $statusPayment = strtoupper($data['status']);
-            $checkout->update([
-                'payment_status' => $statusPayment,
-                'updated_at' => now(),
-            ]);
 
-            if ($statusPayment === 'PAID') {
-                if ($checkout->payment_status !== 'PAID') {
-                    $customer = Customer::where('email', $checkout->email_customer)->first();
+            if ($statusPayment === 'PAID' && $checkout->payment_status !== 'PAID') {
+                $checkout->update([
+                    'payment_status' => $statusPayment,
+                    'updated_at' => now(),
+                ]);
 
-                    if ($customer) {
-                        $customer->point += 50;
-                        $customer->save();
-                    }
+                $customer = Customer::where('email', $checkout->email_customer)->first();
+
+                if ($customer) {
+                    $customer->point += 50;
+                    $customer->save();
                 }
             }
 
@@ -140,38 +137,5 @@ class PaymentController extends Controller
         }
     }
 
-    public function createEWalletInvoice(Request $request)
-    {
-        try {
-            $apiInstance = new PayoutApi();
-            Configuration::setXenditKey(env('XENDIT_API_KEY'));
-
-            $idempotency_key = "6758439c2bab4f5ba6b6a025";
-            $for_user_id = "6751c43e39eb59d6d3897cf6";
-            $data = [
-                'reference_id' => $request->get('external_id'),
-                'currency' => 'IDR',
-                'amount' => $request->get('amount'),
-                'channel_code' => $request->get('channel_code'),
-                'ewallet_details' => [
-                    'success_redirect_url' => 'http://localhost:3002/',
-                ],
-            ];
-
-            $paymentRequest = $apiInstance->createPayout($idempotency_key, $for_user_id, $data);
-            return response()->json(['success' => true, 'data' => $paymentRequest], 200);
-        } catch (\Exception $e) {
-            echo 'Exception when calling PaymentMethodApi->createPaymentMethod: ', $e->getMessage(), PHP_EOL;
-        }
-    }
-
-    public function getInvoice($invoiceId)
-    {
-        try {
-            $invoice = $this->xenditService->getInvoice($invoiceId);
-            return response()->json(['success' => true, 'invoice' => $invoice], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
+    public function historyTransaction() {}
 }
