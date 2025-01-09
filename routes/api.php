@@ -44,5 +44,6 @@ Route::get('/profile', [CustomersAPI::class, 'profile']);
 Route::post('/create-invoice', [PaymentController::class, 'createInvoice']);
 Route::post('/pay', [PaymentController::class, 'createEWalletInvoice']);
 Route::get('/get-invoice/{invoiceId}', [PaymentController::class, 'getInvoice']);
-Route::post('/xendit-callback', [PaymentController::class, 'handleXenditCallback']);
+Route::post('/confirm-payment', [PaymentController::class, 'handleXenditCallback']);
 Route::post('/check-payment-status', [PaymentController::class, 'checkPaymentStatus']);
+Route::get('/transactions/history/{id}', [PaymentController::class, 'historyTransaction']); 

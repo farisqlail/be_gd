@@ -10,6 +10,23 @@ class transaction extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id_user',
+        'id_price',
+        'id_customer',
+        'id_payment',
+        'nama_customer',
+        'kode_transaksi',
+        'tanggal_pembelian',
+        'tanggal_berakhir',
+        'harga',
+        'wa', 
+        'status',
+        'link_wa',
+        'status_pembayaran',
+        'promo'
+    ];
+
     public static function indexTransaction($idTransaksi=null){
         $today=date("Y-m-d");
         $query='
@@ -50,5 +67,10 @@ class transaction extends Model
             // join detailAkuns da on dt.id_detail_akun=da.id
         return DB::select($query);
     }
+
+    public function customer()  
+    {  
+        return $this->belongsTo(Customer::class, 'id_customer');  
+    }  
 
 }

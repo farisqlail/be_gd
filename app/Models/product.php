@@ -10,6 +10,15 @@ class product extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id_varian',
+        'id_jenis',
+        'durasi',
+        'ket_durasi',
+        'batas_pengguna',
+        'deskripsi',
+    ];
+
     public static function indexProduk($idVarian = null, $idJenis = null)
     {
         $query = '

@@ -10,6 +10,7 @@ class Customer extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id_akun',
         'name',
         'email',
         'password',
@@ -17,4 +18,9 @@ class Customer extends Model
         'point',
         'api_token',
     ];
+
+    public function akun()  
+    {  
+        return $this->belongsTo(Akun::class, 'id_akun');  
+    }  
 }

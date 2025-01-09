@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\akun;
 use App\Models\Checkout;
 use App\Models\Customer;
+use App\Models\product;
+use App\Models\transaction;
 use Illuminate\Http\Request;
 use App\services\XenditService;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -70,7 +74,6 @@ class PaymentController extends Controller
 
     public function checkPaymentStatus(Request $request)
     {
-        // Validasi input dari request
         $validated = $request->validate([
             'transaction_code' => 'required|string',
         ]);
@@ -95,7 +98,6 @@ class PaymentController extends Controller
                 ], 200);
             }
         } catch (\Exception $e) {
-            // Menangani error jika terjadi exception
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -123,19 +125,90 @@ class PaymentController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                $customer = Customer::where('email', $checkout->email_customer)->first();
+                $productCode = explode('#', $data['external_id'])[1] ?? null;
+                $productCodeFix = '#' . $productCode;
+                if ($productCodeFix) {
+                    $product = Product::where('kode_produk', $productCodeFix)->first();
 
-                if ($customer) {
-                    $customer->point += 50;
-                    $customer->save();
+                    if ($product) {
+                        $akun = Akun::where('id_produk', $product->id)->first();
+
+                        if ($akun) {
+                            // Decrease jumlah_pengguna  
+                            $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
+                            $akun->save();
+
+                            $customer = Customer::where('id', $data['id_customer'])->first();
+                            if ($customer) {
+                                $customer->point += 50;
+                                $customer->id_akun = $akun->id;
+                                $customer->save();
+                            }
+                        }
+                    }
                 }
+
+                transaction::create([
+                    'id_user' => null,
+                    'id_price' => $checkout->id_price,
+                    'id_customer' => $data['id_customer'],
+                    'id_payment' => null,
+                    'nama_customer' => $checkout->customer_name,
+                    'kode_transaksi' => $checkout->transaction_code,
+                    'tanggal_pembelian' => now(),
+                    'tanggal_berakhir' => now()->addDays(30),
+                    'harga' => $checkout->amount,
+                    'wa' => $checkout->phone_customer,
+                    'status' => 'completed',
+                    'link_wa' => "",
+                    'status_pembayaran' => 'Lunas',
+                    'promo' => $checkout->id_promo,
+                ]);
             }
 
-            return response()->json(['success' => true, 'message' => 'Payment status updated'], 200);
+            return response()->json(['success' => true, 'message' => 'Payment status updated and transaction recorded'], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    public function historyTransaction() {}
+    public function historyTransaction($id)
+    {
+        try { 
+            $customer = Customer::with('akun')->find($id);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found.'
+                ], 404);
+            }
+
+            $transactions = Transaction::where('id_customer', $id)
+                ->with('customer.akun')
+                ->orderBy('tanggal_pembelian', 'desc')
+                ->get();
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No transactions found for this user.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transactions' => $transactions,
+                    'akun' => $customer->akun
+                ],
+                'message' => 'Transaction history retrieved successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

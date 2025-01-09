@@ -10,6 +10,17 @@ class akun extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id_produk',
+        'id_metode',
+        'email',
+        'tujuan_akun',
+        'password',
+        'tanggal_pembuatan',
+        'jumlah_pengguna',
+        'nomor_akun'
+    ];
+
     public static function indexAkun($varian){
         $query='
         with detailProduk as (
