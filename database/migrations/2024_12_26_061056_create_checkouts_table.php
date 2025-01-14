@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('checkouts', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('id_price');
-            $table->bigInteger("id_user")->nullable();
+            $table->bigInteger("id_customer")->nullable();
             $table->bigInteger("id_promo")->nullable();
             $table->string("customer_name");
             $table->string("email_customer");

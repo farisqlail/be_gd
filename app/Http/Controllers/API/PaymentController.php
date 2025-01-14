@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\akun;
 use App\Models\Checkout;
 use App\Models\Customer;
+use App\Models\detailAkun;
 use App\Models\product;
 use App\Models\transaction;
 use Illuminate\Http\Request;
@@ -29,7 +30,6 @@ class PaymentController extends Controller
             'id_price' => 'required|integer',
             'id_promo' => 'integer',
             'customer_name' => 'required|string',
-            'email_customer' => 'required|string',
             'phone_customer' => 'required|string',
             'transaction_code' => 'required|string',
             'payment_status' => 'nullable|string',
@@ -51,7 +51,7 @@ class PaymentController extends Controller
                 'id_user' => $request->get('id_user'),
                 'id_promo' => $validated['id_promo'],
                 'customer_name' => $validated['customer_name'],
-                'email_customer' => $validated['email_customer'],
+                'email_customer' => $request->get('email_customer'),
                 'phone_customer' => $validated['phone_customer'],
                 'transaction_code' => $validated['transaction_code'],
                 'payment_status' => $statusPayment,
@@ -107,17 +107,20 @@ class PaymentController extends Controller
         try {
             $data = $request->all();
 
-            if (!isset($data['external_id'], $data['status'])) {
+            if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
                 return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
             }
 
-            $checkout = Checkout::where('transaction_code', $data['external_id'])->first();
+            $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
 
             if (!$checkout) {
                 return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
             }
 
             $statusPayment = strtoupper($data['status']);
+            $productCode = explode('#', $data['external_id'])[1] ?? null;
+            $productCodeFix = '#' . $productCode;
+            $product = Product::where('kode_produk', $productCodeFix)->first();
 
             if ($statusPayment === 'PAID' && $checkout->payment_status !== 'PAID') {
                 $checkout->update([
@@ -125,18 +128,19 @@ class PaymentController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                $productCode = explode('#', $data['external_id'])[1] ?? null;
-                $productCodeFix = '#' . $productCode;
                 if ($productCodeFix) {
-                    $product = Product::where('kode_produk', $productCodeFix)->first();
-
                     if ($product) {
                         $akun = Akun::where('id_produk', $product->id)->first();
 
                         if ($akun) {
-                            // Decrease jumlah_pengguna  
                             $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
                             $akun->save();
+
+                            $detailAkun = detailAkun::where('id_akun', $akun->id)->first();
+                            if ($detailAkun) {
+                                $detailAkun->jumlah_pengguna = max(0, $detailAkun->jumlah_pengguna + 1);
+                                $detailAkun->save();
+                            }
 
                             $customer = Customer::where('id', $data['id_customer'])->first();
                             if ($customer) {
@@ -148,7 +152,7 @@ class PaymentController extends Controller
                     }
                 }
 
-                transaction::create([
+                Transaction::create([
                     'id_user' => null,
                     'id_price' => $checkout->id_price,
                     'id_customer' => $data['id_customer'],
@@ -166,7 +170,14 @@ class PaymentController extends Controller
                 ]);
             }
 
-            return response()->json(['success' => true, 'message' => 'Payment status updated and transaction recorded'], 200);
+            $akunDetails = detailAkun::where('id_akun', $akun->id)->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment status updated and transaction recorded',
+                'akun' => $akun,
+                'detailAkun' => $akunDetails
+            ], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
@@ -174,7 +185,7 @@ class PaymentController extends Controller
 
     public function historyTransaction($id)
     {
-        try { 
+        try {
             $customer = Customer::with('akun')->find($id);
 
             if (!$customer) {
