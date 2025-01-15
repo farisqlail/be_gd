@@ -48,7 +48,6 @@ class PaymentController extends Controller
             Checkout::insert([
                 'amount' => $amount,
                 'id_price' => $validated['id_price'],
-                'id_user' => $request->get('id_user'),
                 'id_promo' => $validated['id_promo'],
                 'customer_name' => $validated['customer_name'],
                 'email_customer' => $request->get('email_customer'),
@@ -121,6 +120,7 @@ class PaymentController extends Controller
             $productCode = explode('#', $data['external_id'])[1] ?? null;
             $productCodeFix = '#' . $productCode;
             $product = Product::where('kode_produk', $productCodeFix)->first();
+            $akun = Akun::where('id_produk', $product->id)->first();
 
             if ($statusPayment === 'PAID' && $checkout->payment_status !== 'PAID') {
                 $checkout->update([
@@ -130,8 +130,6 @@ class PaymentController extends Controller
 
                 if ($productCodeFix) {
                     if ($product) {
-                        $akun = Akun::where('id_produk', $product->id)->first();
-
                         if ($akun) {
                             $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
                             $akun->save();
@@ -175,8 +173,10 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Payment status updated and transaction recorded',
-                'akun' => $akun,
-                'detailAkun' => $akunDetails
+                'data' => [
+                    'akun' => $akun,
+                    'detailAkun' => $akunDetails
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
