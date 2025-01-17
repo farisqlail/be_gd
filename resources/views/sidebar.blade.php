@@ -31,6 +31,14 @@
     <a href="/customers"><i class="fa fa-users"></i>
         <span>Customer</span></a>
 </li>
+<li class="{{ Request::is('payments') ? 'active' : '' }} {{ Request::is('payments/*') ? 'active' : '' }}">
+    <a href="/payments"><i class="fa fa-money"></i>
+        <span>List Payment</span></a>
+</li>
+<li class="{{ Request::is('wa_admin') ? 'active' : '' }} {{ Request::is('wa_admin/*') ? 'active' : '' }}">
+    <a href="/wa_admin"><i class="fa fa-phone"></i>
+        <span>WA Admin</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}

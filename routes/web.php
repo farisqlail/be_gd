@@ -9,6 +9,7 @@ use App\Http\Controllers\memberController;
 use App\Http\Controllers\metodeProduksiController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\paymentRequestController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\platformController;
 use App\Http\Controllers\produkController;
 use App\Http\Controllers\PromoController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\tokoController;
 use App\Http\Controllers\transactionController;
 use App\Http\Controllers\varianController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\WaAdminController;
 use App\Http\Controllers\XenditController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -160,4 +162,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/Transaksi/Provide/Akun', [transactionController::class, 'fetchAkun']);
     Route::get('/Transaksi/Provide/Akun/Detail', [transactionController::class, 'fetchDetailAkun']);
     Route::post('/Transaksi/Provide/Akun/Store', [transactionController::class, 'provideAkun']);
+
+    //list payments
+    Route::resource('payments', PaymentsController::class);  
+
+    //list wa admin
+    Route::resource('wa_admin', WaAdminController::class);  
 });
