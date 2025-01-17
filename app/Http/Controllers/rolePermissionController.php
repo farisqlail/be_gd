@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Permission as ModelsPermission;
+use App\Models\Role as ModelsRole;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -13,14 +15,14 @@ class rolePermissionController extends Controller
      */
     public function index()
     {
-        $role=Role::all();
-        $permission=Permission::all();
+        $role=ModelsRole::all();
+        $permission=ModelsPermission::all();
         return view('Menu.AccessManagement.roleManagement',compact('role','permission'));
     }
 
     public function fetchPermission(Request $request){
 
-        $data['permission']=Role::fetchPermission($request->role);
+        $data['permission']=ModelsRole::fetchPermission($request->role);
         return response()->json($data);
     }
 
@@ -38,7 +40,7 @@ class rolePermissionController extends Controller
     public function store(Request $request)
     {
         try {
-            Role::create(['name'=>$request->nama]);
+            ModelsRole::create(['name'=>$request->nama]);
             return redirect('/AccessManagement')->with(["success"=>"Data Role Berhasil Ditambahkan"]);
 
         } catch (\Throwable $th) {
@@ -48,7 +50,7 @@ class rolePermissionController extends Controller
 
     public function storePermission(Request $request){
        try {
-           $permission= new Permission();
+           $permission= new ModelsPermission();
            $permission->name=$request->nama;
            $permission->save();
            return redirect('/AccessManagement')->with(["success"=>"Data Permission Berhasil Ditambahkan"]);
@@ -79,7 +81,7 @@ class rolePermissionController extends Controller
     public function update(Request $request)
     {
         try {
-            $role=Role::findOrFail($request->role);
+            $role=ModelsRole::findOrFail($request->role);
             $role->syncPermissions($request->permissions);
             return redirect('/AccessManagement')->with(["success"=>"Permission Berhasil Ditambahkan Pada ".$role->name]);
 

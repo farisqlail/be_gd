@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role as ModelsRole;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,7 +13,7 @@ class memberController extends Controller
     public function index()
     {
         $user=User::where('deleted',false)->get();
-        $roles=Role::all();
+        $roles=ModelsRole::all();
         return view('Menu.Member.member',compact('user','roles'));
     }
 
@@ -47,7 +48,7 @@ class memberController extends Controller
 
     public function fetchUserRole(Request $request){
         $data['userRole']=User::findUserRole($request->idUser);
-        $data['roles']=Role::all();
+        $data['roles']=ModelsRole::all();
         return response()->json($data);
     }
 
@@ -86,7 +87,7 @@ class memberController extends Controller
 
     function profile(){
 
-        $roles=Role::all();
+        $roles=ModelsRole::all();
         return view('auth.profile',compact('roles'));
 
     }

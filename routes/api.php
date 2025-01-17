@@ -7,6 +7,8 @@ use App\Http\Controllers\API\PromoAPI;
 use App\Http\Controllers\API\TestimonialAPI;
 use App\Http\Controllers\API\VoucherAPI;
 use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\PaymentMidtransController;
+use App\Http\Controllers\API\TransactionReminderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,3 +51,6 @@ Route::post('/check-payment-status', [PaymentController::class, 'checkPaymentSta
 Route::get('/transactions/history/{id}', [PaymentController::class, 'historyTransaction']); 
 
 Route::get('/reminders/expiring', [TransactionReminderController::class, 'getExpiringTransactions']);
+
+Route::post('/payment/create', [PaymentMidtransController::class, 'createPayment']);  
+Route::post('/payment/callback', [PaymentMidtransController::class, 'handleCallback']);  
