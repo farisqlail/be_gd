@@ -71,6 +71,50 @@ class PaymentController extends Controller
         }
     }
 
+    public function createInvoiceManual(Request $request)
+    {
+        $validated = $request->validate([
+            'external_id' => 'required|string',
+            'amount' => 'required|numeric|min:10000',
+            'id_price' => 'required|integer',
+            'id_promo' => 'integer',
+            'customer_name' => 'required|string',
+            'phone_customer' => 'required|string',
+            'transaction_code' => 'required|string',
+            'payment_status' => 'nullable|string',
+            'payment_method' => 'nullable|string',
+        ]);
+
+        try {
+            $amount = $validated['amount'];
+            $statusPayment = 'PENDING';
+            $checkout = Checkout::create([
+                'amount' => $amount,
+                'id_price' => $validated['id_price'],
+                'id_promo' => $validated['id_promo'],
+                'customer_name' => $validated['customer_name'],
+                'email_customer' => $request->get('email_customer'),
+                'phone_customer' => $validated['phone_customer'],
+                'transaction_code' => $validated['transaction_code'],
+                'payment_status' => $statusPayment,
+                'payment_method' => $validated['payment_method'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Checkout created and invoice generated successfully.',
+                'invoice' => $checkout,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function checkPaymentStatus(Request $request)
     {
         $validated = $request->validate([
@@ -165,6 +209,89 @@ class PaymentController extends Controller
                     'link_wa' => "",
                     'status_pembayaran' => 'Lunas',
                     'promo' => $checkout->id_promo,
+                ]);
+            }
+
+            $akunDetails = detailAkun::where('id_akun', $akun->id)->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment status updated and transaction recorded',
+                'data' => [
+                    'akun' => $akun,
+                    'detailAkun' => $akunDetails
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function handleXenditCallbackManual(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
+                return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
+            }
+
+            $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
+
+            if (!$checkout) {
+                return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
+            }
+
+            $statusPayment = strtoupper($data['status']);
+            $productCode = explode('#', $data['external_id'])[1] ?? null;
+            $productCodeFix = '#' . $productCode;
+            $product = Product::where('kode_produk', $productCodeFix)->first();
+            $akun = Akun::where('id_produk', $product->id)->first();
+
+            if ($statusPayment === 'PENDING' && $checkout->payment_status !== 'PENDING') {
+                $checkout->update([
+                    'payment_status' => $statusPayment,
+                    'updated_at' => now(),
+                ]);
+
+                if ($productCodeFix) {
+                    if ($product) {
+                        if ($akun) {
+                            $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
+                            $akun->save();
+
+                            $detailAkun = detailAkun::where('id_akun', $akun->id)->first();
+                            if ($detailAkun) {
+                                $detailAkun->jumlah_pengguna = max(0, $detailAkun->jumlah_pengguna + 1);
+                                $detailAkun->save();
+                            }
+
+                            $customer = Customer::where('id', $data['id_customer'])->first();
+                            if ($customer) {
+                                $customer->point += 50;
+                                $customer->id_akun = $akun->id;
+                                $customer->save();
+                            }
+                        }
+                    }
+                }
+
+                Transaction::create([
+                    'id_user' => null,
+                    'id_price' => $checkout->id_price,
+                    'id_customer' => $data['id_customer'],
+                    'id_payment' => null,
+                    'nama_customer' => $checkout->customer_name,
+                    'kode_transaksi' => $checkout->transaction_code,
+                    'tanggal_pembelian' => now(),
+                    'tanggal_berakhir' => now()->addDays(30),
+                    'harga' => $checkout->amount,
+                    'wa' => $checkout->phone_customer,
+                    'status' => 'completed',
+                    'link_wa' => "",
+                    'status_pembayaran' => 'Lunas',
+                    'promo' => $checkout->id_promo,
+                    'payment_method' => $checkout->payement_method
                 ]);
             }
 

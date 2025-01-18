@@ -23,7 +23,6 @@ class SendReminder extends Command
             ->get();
 
         foreach ($transactions as $transaction) {
-            // Send reminder (you can customize this part)  
             $this->sendReminder($transaction);
         }
 
@@ -31,8 +30,10 @@ class SendReminder extends Command
     }
 
     protected function sendReminder($transaction)
-    {
-        // Return the WhatsApp number for the transaction  
-        return $transaction->wa;
+    { 
+        return (object) [
+            'name' => $transaction->nama_customer,
+            'wa' => $transaction->wa
+        ];
     }
 }

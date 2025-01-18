@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string("transaction_code");
             $table->bigInteger("amount");
             $table->string("payment_status");
+            $table->string("payment_method");
             $table->timestamps();
         });
     }

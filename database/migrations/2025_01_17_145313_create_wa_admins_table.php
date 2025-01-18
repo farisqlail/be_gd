@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('wa_admins', function (Blueprint $table) {
             $table->id();
+            $table->string('logo');
             $table->string('name');
             $table->number('wa');
             $table->timestamps();

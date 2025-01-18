@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // Schedule the reminder command to run daily  
         $schedule->command('reminder:send')->daily();
+        $schedule->command('usercount:increment')->daily();  
     }
     /**
      * Register the commands for the application.

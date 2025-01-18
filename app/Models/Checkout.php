@@ -18,6 +18,7 @@ class Checkout extends Model
         'phone_customer',
         'transaction_code',
         'amount',
-        'payment_status'
+        'payment_status',
+        'payment_method'
     ];
 }

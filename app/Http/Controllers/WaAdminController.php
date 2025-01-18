@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\WaAdmin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class WaAdminController extends Controller
 {
@@ -34,11 +35,13 @@ class WaAdminController extends Controller
         $request->validate([
             'name' => 'required',
             'wa' => 'required',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         WaAdmin::create([
             'name' => $request->name,
-            'wa' => $request->wa
+            'wa' => $request->wa,
+            'logo' => $request->file('logo')->store('waadmin', 'public')
         ]);
 
         return redirect()->route('wa_admin.index')->with('success', 'WA Admin created successfully.');
@@ -70,13 +73,28 @@ class WaAdminController extends Controller
         $request->validate([
             'name' => 'required',
             'wa' => 'required',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $waAdmin = WaAdmin::findOrFail($id);
-        $waAdmin->update([
-            'name' => $request->name,
-            'wa' => $request->wa
-        ]);
+
+        if ($request->hasFile('logo')) {
+            if ($waAdmin->logo) {
+                Storage::delete('public/' . $waAdmin->logo);
+            }
+
+            $waAdmin->update([
+                'name' => $request->name,
+                'wa' => $request->wa,
+                'logo' => $request->file('logo')->store('logo', 'public')
+            ]);
+        } else {
+            $waAdmin->update([
+                'name' => $request->name,
+                'wa' => $request->wa,
+                'logo' => $waAdmin->logo
+            ]);
+        }
 
         return redirect()->route('wa_admin.index')->with('success', 'WA Admin updated successfully.');
     }

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('link_wa')->nullable();
             $table->enum('status_pembayaran',['Lunas','Kredit']);
             $table->boolean('promo')->default(false);
+            $table->string('payment_method');
             $table->timestamps();
 
             $table->foreign('id_user')->references('id')->on('users');

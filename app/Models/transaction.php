@@ -24,7 +24,8 @@ class transaction extends Model
         'status',
         'link_wa',
         'status_pembayaran',
-        'promo'
+        'promo',
+        'payment_method'
     ];
 
     public static function indexTransaction($idTransaksi=null){

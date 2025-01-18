@@ -22,6 +22,7 @@ use App\Http\Controllers\varianController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WaAdminController;
 use App\Http\Controllers\XenditController;
+use App\Http\Controllers\UserCountController;  
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -164,8 +165,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Provide/Akun/Store', [transactionController::class, 'provideAkun']);
 
     //list payments
-    Route::resource('payments', PaymentsController::class);  
+    Route::resource('payments', PaymentsController::class);
 
     //list wa admin
-    Route::resource('wa_admin', WaAdminController::class);  
+    Route::resource('wa_admin', WaAdminController::class);
+
+    //user count
+
+    Route::get('user_counts', [UserCountController::class, 'index'])->name('user_counts.index');
+    Route::get('user_counts/increment', [UserCountController::class, 'incrementCount'])->name('user_counts.increment');
 });

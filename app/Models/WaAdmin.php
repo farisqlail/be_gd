@@ -10,6 +10,7 @@ class WaAdmin extends Model
     use HasFactory;
     
     protected $fillable = [
+        'logo',
         'name',
         'wa'
     ];
