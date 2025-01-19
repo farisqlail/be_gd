@@ -12,5 +12,6 @@ class Testimonial extends Model
     protected $fillable = [
         'name',
         'deskripsi',
+        'published'
     ];
 }

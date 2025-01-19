@@ -6,13 +6,18 @@
             </div>
             <div class="modal-body varianBody">
                 <div class="box-body">
-                    <form class="formAddVarian" method="post">
+                    <form class="formAddVarian" method="post" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="id" id="idVarian">
                         <div class="form-group">
                             <label for="varian">Varian</label>
                             <input type="text" class="form-control" id="varian_master" name="varian"
                                 placeholder="Masukkan Varian Produk">
+                        </div>
+                        <div class="form-group">
+                            <label for="images">Upload Images (3-5 images)</label>
+                            <input type="file" class="form-control" name="images[]" multiple required>
+                            <small class="form-text text-muted">You can upload a maximum of 5 images and a minimum of 3.</small>
                         </div>
                         <div class="card">
                             <div class="card-body varianList">
@@ -38,10 +43,10 @@
 
 <script src="{{ asset('../../bower_components/jquery/dist/jquery.min.js') }}"></script>
 <script>
-    $(document).ready(function(){
-    // Manage Type
+    $(document).ready(function() {
+        // Manage Type
 
-        $(document).on('click', '.varianProduk', function(){
+        $(document).on('click', '.varianProduk', function() {
             var id = $(this).data('id');
             var varianName = $(this).data('varian');
             $(".varianBody form").removeClass("formAddVarian").addClass("formUpdateVarian");
@@ -54,7 +59,7 @@
             `);
         });
 
-        $(document).on("hidden.bs.modal","#manageVarian",function(){
+        $(document).on("hidden.bs.modal", "#manageVarian", function() {
             $("#varian_master").val('');
             $("#manageVarian #footerSubmit").html(`
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -62,21 +67,21 @@
             `);
         });
 
-        $(document).on("submit",".formAddVarian",function(e){
+        $(document).on("submit", ".formAddVarian", function(e) {
             e.preventDefault();
             var form = $('.formAddVarian');
             var formData = new FormData(form[0]);
             var url = "/Varian/Produk/Store";
             try {
                 $.ajax({
-                    type:'post',
-                    url:url,
-                    dataType:'json',
+                    type: 'post',
+                    url: url,
+                    dataType: 'json',
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function(response){
-                        toastr.success(response.message,('Success'));
+                    success: function(response) {
+                        toastr.success(response.message, ('Success'));
                         $('.card-body').empty();
                         // Loop through the updated fleet types and append them to the container
                         $.each(response.variances, function(key, value) {
@@ -84,7 +89,7 @@
                                 <span class="btn btn-xs varianProduk" id="varian-${value.id}" data-id="${value.id}}"
                                     data-varian="${value.variance_name}">${value.variance_name}</span>`;
 
-                            var select_option=`
+                            var select_option = `
                                         <option value="${value.id}}">${value.variance_name}</option>
                             `;
                             $('.card-body').append(refresh_data);
@@ -92,9 +97,9 @@
                             // $("#supplier_update").append(select_option);
                         });
                         // Hide the modal after updating
-                            $("#varian_master").val('');
-                            $("#manageVarian").modal('hide');
-                            $("#footerSubmit").html(`
+                        $("#varian_master").val('');
+                        $("#manageVarian").modal('hide');
+                        $("#footerSubmit").html(`
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Save</button>
                             `);
@@ -106,22 +111,22 @@
 
         });
 
-        $(document).on("submit",".formUpdateVarian",function(e){
+        $(document).on("submit", ".formUpdateVarian", function(e) {
             e.preventDefault();
             var form = $('.formUpdateVarian');
             var formData = new FormData(form[0]);
             var url = "/Varian/Produk/Update";
             try {
                 $.ajax({
-                    type:'post',
-                    url:url,
-                    dataType:'json',
+                    type: 'post',
+                    url: url,
+                    dataType: 'json',
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function(response){
+                    success: function(response) {
                         $(".varianBody form").removeClass("formUpdateVarian").addClass("formAddVarian");
-                        toastr.success(response.message,('Success'));
+                        toastr.success(response.message, ('Success'));
                         $('.card-body').empty();
                         // Loop through the updated fleet types and append them to the container
                         $.each(response.variances, function(key, value) {
@@ -129,7 +134,7 @@
                                 <span class="btn btn-xs varianProduk" id="varian-${value.id}" data-id="${value.id}}"
                                     data-varian="${value.variance_name}">${value.variance_name}</span>`;
 
-                            var select_option=`
+                            var select_option = `
                                         <option value="${value.id}}">${value.variance_name}</option>
                             `;
                             $('.card-body').append(refresh_data);
@@ -137,9 +142,9 @@
                             // $("#supplier_update").append(select_option);
                         });
                         // Hide the modal after updating
-                            $("#varian_master").val('');
-                            $("#manageVarian").modal('hide');
-                            $("#footerSubmit").html(`
+                        $("#varian_master").val('');
+                        $("#manageVarian").modal('hide');
+                        $("#footerSubmit").html(`
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Save</button>
                             `);
@@ -151,21 +156,21 @@
 
         });
 
-        $(document).on('click','.delVarian',function(e){
+        $(document).on('click', '.delVarian', function(e) {
             e.preventDefault();
             var form = $('.formUpdateVarian');
             var formData = new FormData(form[0]);
             var url = "/Varian/Produk/Delete";
             try {
                 $.ajax({
-                    type:'post',
-                    url:url,
-                    dataType:'json',
+                    type: 'post',
+                    url: url,
+                    dataType: 'json',
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function(response){
-                        toastr.success(response.message,('Success'));
+                    success: function(response) {
+                        toastr.success(response.message, ('Success'));
                         $('.card-body').empty();
                         // Loop through the updated fleet types and append them to the container
                         $.each(response.variances, function(key, value) {
@@ -173,16 +178,16 @@
                                 <span class="btn btn-xs varianProduk" id="varian-${value.id}" data-id="${value.id}}"
                                     data-varian="${value.variance_name}">${value.variance_name}</span>`;
 
-                            var select_option=`
+                            var select_option = `
                                         <option value="${value.id}}">${value.variance_name}</option>
                             `;
                             $('.card-body').append(refresh_data);
                             $("#varianProduk").append(select_option);
                         });
                         // Hide the modal after updating
-                            $("#varian_master").val('');
-                            $("#manageVarian").modal('hide');
-                            $("#footerSubmit").html(`
+                        $("#varian_master").val('');
+                        $("#manageVarian").modal('hide');
+                        $("#footerSubmit").html(`
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Save</button>
                             `);
@@ -194,6 +199,6 @@
         });
 
 
-    // Manage Type
+        // Manage Type
     });
 </script>

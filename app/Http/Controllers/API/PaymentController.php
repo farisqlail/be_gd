@@ -246,7 +246,6 @@ class PaymentController extends Controller
             $productCode = explode('#', $data['external_id'])[1] ?? null;
             $productCodeFix = '#' . $productCode;
             $product = Product::where('kode_produk', $productCodeFix)->first();
-            $akun = Akun::where('id_produk', $product->id)->first();
 
             if ($statusPayment === 'PENDING' && $checkout->payment_status !== 'PENDING') {
                 $checkout->update([
@@ -256,59 +255,39 @@ class PaymentController extends Controller
 
                 if ($productCodeFix) {
                     if ($product) {
-                        if ($akun) {
-                            $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
-                            $akun->save();
-
-                            $detailAkun = detailAkun::where('id_akun', $akun->id)->first();
-                            if ($detailAkun) {
-                                $detailAkun->jumlah_pengguna = max(0, $detailAkun->jumlah_pengguna + 1);
-                                $detailAkun->save();
-                            }
-
-                            $customer = Customer::where('id', $data['id_customer'])->first();
-                            if ($customer) {
-                                $customer->point += 50;
-                                $customer->id_akun = $akun->id;
-                                $customer->save();
-                            }
+                        $customer = Customer::where('id', $data['id_customer'])->first();
+                        if ($customer) {
+                            $customer->point += 50;
+                            $customer->save();
                         }
                     }
                 }
-
-                Transaction::create([
-                    'id_user' => null,
-                    'id_price' => $checkout->id_price,
-                    'id_customer' => $data['id_customer'],
-                    'id_payment' => null,
-                    'nama_customer' => $checkout->customer_name,
-                    'kode_transaksi' => $checkout->transaction_code,
-                    'tanggal_pembelian' => now(),
-                    'tanggal_berakhir' => now()->addDays(30),
-                    'harga' => $checkout->amount,
-                    'wa' => $checkout->phone_customer,
-                    'status' => 'completed',
-                    'link_wa' => "",
-                    'status_pembayaran' => 'Lunas',
-                    'promo' => $checkout->id_promo,
-                    'payment_method' => $checkout->payement_method
-                ]);
             }
 
-            $akunDetails = detailAkun::where('id_akun', $akun->id)->first();
+            // $this->sendWhatsAppMessage(62895378052885, "Ada pembayaran pending nih dengan kode transaksi " . $checkout->transaction_code . " dan pembayaran melalui " . $checkout->payment_method);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Payment status updated and transaction recorded',
-                'data' => [
-                    'akun' => $akun,
-                    'detailAkun' => $akunDetails
-                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    // private function sendWhatsAppMessage($phoneNumber, $message)
+    // {
+    //     // Example using Twilio  
+    //     $client = new \Twilio\Rest\Client('TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN');
+
+    //     $client->messages->create(
+    //         "whatsapp:$phoneNumber", // WhatsApp number  
+    //         [
+    //             'from' => 'whatsapp:YOUR_TWILIO_WHATSAPP_NUMBER',
+    //             'body' => $message
+    //         ]
+    //     );
+    // }
 
     public function historyTransaction($id)
     {

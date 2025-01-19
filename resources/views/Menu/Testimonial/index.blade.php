@@ -31,10 +31,18 @@ Master Testimonial
                     <tbody>
                         @foreach ($testimonials as $testimonial)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $loop->iteration }}</d>
                             <td>{{ $testimonial->name }}</td>
                             <td>{{ $testimonial->deskripsi }}</td>
                             <td>
+                                @if ($testimonial->published === '0')
+                                <form action="{{ route('testimonial.publish', $testimonial->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success">Publish</button>
+                                </form>
+                                @else
+                                <span class="badge badge-success">Published</span>
+                                @endif
                                 <a href="{{ route('testimonial.edit', $testimonial->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="{{ route('testimonial.destroy', $testimonial->id) }}" method="POST" style="display:inline-block;">
                                     @csrf

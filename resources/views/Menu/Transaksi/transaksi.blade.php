@@ -126,7 +126,7 @@ Transaksi
                 //     { width: '15%', targets: 3 },
                 //     { width: '15%', targets: 4 },
                 //     { width: '15%', targets: 5 },
-                //     { width: '30%', targets: 6 },
+                //     { width:P '30%', targets: 6 },
                 //     { width: '30%', targets: 7 },
                 //     { width: '30%', targets: 8 },
                 //     { width: '30%', targets: 9 },

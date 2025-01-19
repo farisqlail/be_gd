@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('testimonials', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('deskripsi');
-            $table->enum('published', ['0', '1'])->default('0');
-            $table->timestamps();
-        });
+        Schema::create('variance_images', function (Blueprint $table) {  
+            $table->id();  
+            $table->foreignId('variance_id')->constrained()->onDelete('cascade');  
+            $table->text('image_path');  
+            $table->timestamps();  
+        });  
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('testimonials');
+        Schema::dropIfExists('variance_images');
     }
 };

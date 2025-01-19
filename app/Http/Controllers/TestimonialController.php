@@ -30,7 +30,8 @@ class TestimonialController extends Controller
 
         Testimonial::create([
             'name' => $request->name,
-            'deskripsi' => $request->description,
+            'description' => $request->description,
+            'published' => $request->has('published') ? '1' : '0',
         ]);
 
         return redirect()->route('testimonial.index')->with('success', 'Testimonial created successfully.');
@@ -51,13 +52,23 @@ class TestimonialController extends Controller
             'description' => 'required',
         ]);
 
-        // Update testimonial
+        // Update testimonial  
         $testimonial->update([
             'name' => $request->name,
             'description' => $request->description,
+            'published' => $request->has('published') ? '1' : '0',
         ]);
 
         return redirect()->route('testimonial.index')->with('success', 'Testimonial updated successfully.');
+    }
+
+    public function publish($id)
+    {
+        $testimonial = Testimonial::findOrFail($id);
+
+        $testimonial->update(['published' => '1']);
+
+        return redirect()->route('testimonial.index')->with('success', 'Testimonial published successfully.');
     }
 
     // Menghapus testimonial

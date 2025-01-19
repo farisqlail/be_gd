@@ -144,6 +144,8 @@
         </span>
     </a>
     <ul class="treeview-menu">
+        <li class="{{ Request::is('Transaksi/pending') ? 'active' : '' }}"><a href="/Transaksi/pending"><i
+                    class="fa fa-circle-o"></i> Pending</a></li>
         <li class="{{ Request::is('Transaksi/Today') ? 'active' : '' }}"><a href="/Transaksi/Today"><i
                     class="fa fa-circle-o"></i> Hari ini</a></li>
         <li class="{{Request::is('Transaksi/PR/*') ? 'active':''}}"><a href="/Transaksi/PR"><i

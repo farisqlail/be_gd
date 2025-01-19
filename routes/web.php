@@ -153,6 +153,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Today/updateStatus', [transactionController::class, 'updateStatus']);
     Route::post('/Transaksi/Store', [transactionController::class, 'store']);
     Route::post('/Transaksi/Update', [transactionController::class, 'update']);
+    Route::get('/Transaksi/pending', [TransactionController::class, 'indexTransactionPending'])->name('transactions.pending.index');  
+    Route::put('/transactions/{id}/pending', [TransactionController::class, 'updateTransactionPending'])->name('transactions.pending.update');  
 
     // Payment Method
     Route::post('/Payment/Store', [paymentController::class, 'store']);
@@ -171,7 +173,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('wa_admin', WaAdminController::class);
 
     //user count
-
     Route::get('user_counts', [UserCountController::class, 'index'])->name('user_counts.index');
     Route::get('user_counts/increment', [UserCountController::class, 'incrementCount'])->name('user_counts.increment');
+
+    //testimonial
+    Route::post('/testimonial/{id}/publish', [TestimonialController::class, 'publish'])->name('testimonial.publish');  
 });
