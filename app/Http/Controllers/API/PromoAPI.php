@@ -15,7 +15,15 @@ class PromoAPI extends Controller
     {
         try {
             $promo = Promo::all();
-            
+
+            $baseUrl = url('/');
+            $promo = $promo->map(function ($item) use ($baseUrl) {
+                if ($item->image) {
+                    $item->image = $baseUrl . '/storage/promos/' . $item->image;
+                }
+                return $item;
+            });
+
             return response()->json([
                 'promo' => $promo
             ], 200);
@@ -45,9 +53,7 @@ class PromoAPI extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-    }
+    public function show(string $id) {}
 
     /**
      * Show the form for editing the specified resource.

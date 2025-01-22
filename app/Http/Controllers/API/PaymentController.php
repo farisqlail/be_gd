@@ -10,66 +10,66 @@ use App\Models\detailAkun;
 use App\Models\product;
 use App\Models\transaction;
 use Illuminate\Http\Request;
-use App\services\XenditService;
+// use App\services\XenditService;
 use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    protected $xenditService;
+    // protected $xenditService;
 
-    public function __construct(XenditService $xenditService)
-    {
-        $this->xenditService = $xenditService;
-    }
+    // public function __construct(XenditService $xenditService)
+    // {
+    //     $this->xenditService = $xenditService;
+    // }
 
-    public function createInvoice(Request $request)
-    {
-        $validated = $request->validate([
-            'external_id' => 'required|string',
-            'amount' => 'required|numeric|min:10000',
-            'id_price' => 'required|integer',
-            'id_promo' => 'integer',
-            'customer_name' => 'required|string',
-            'phone_customer' => 'required|string',
-            'transaction_code' => 'required|string',
-            'payment_status' => 'nullable|string',
-        ]);
+    // public function createInvoice(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'external_id' => 'required|string',
+    //         'amount' => 'required|numeric|min:10000',
+    //         'id_price' => 'required|integer',
+    //         'id_promo' => 'integer',
+    //         'customer_name' => 'required|string',
+    //         'phone_customer' => 'required|string',
+    //         'transaction_code' => 'required|string',
+    //         'payment_status' => 'nullable|string',
+    //     ]);
 
-        try {
-            $invoice = $this->xenditService->createInvoice([
-                'external_id' => $validated['external_id'],
-                'amount' => $validated['amount'],
-                'success_redirect_url' => 'http://localhost:3002/success',
-            ]);
+    //     try {
+    //         $invoice = $this->xenditService->createInvoice([
+    //             'external_id' => $validated['external_id'],
+    //             'amount' => $validated['amount'],
+    //             'success_redirect_url' => 'http://localhost:3002/success',
+    //         ]);
 
-            $amount = $invoice['amount'];
-            $statusPayment = 'PENDING';
+    //         $amount = $invoice['amount'];
+    //         $statusPayment = 'PENDING';
 
-            Checkout::insert([
-                'amount' => $amount,
-                'id_price' => $validated['id_price'],
-                'id_promo' => $validated['id_promo'],
-                'customer_name' => $validated['customer_name'],
-                'email_customer' => $request->get('email_customer'),
-                'phone_customer' => $validated['phone_customer'],
-                'transaction_code' => $validated['transaction_code'],
-                'payment_status' => $statusPayment,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+    //         Checkout::insert([
+    //             'amount' => $amount,
+    //             'id_price' => $validated['id_price'],
+    //             'id_promo' => $validated['id_promo'],
+    //             'customer_name' => $validated['customer_name'],
+    //             'email_customer' => $request->get('email_customer'),
+    //             'phone_customer' => $validated['phone_customer'],
+    //             'transaction_code' => $validated['transaction_code'],
+    //             'payment_status' => $statusPayment,
+    //             'created_at' => now(),
+    //             'updated_at' => now(),
+    //         ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Checkout created and invoice generated successfully.',
-                'invoice' => $invoice,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Checkout created and invoice generated successfully.',
+    //             'invoice' => $invoice,
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     public function createInvoiceManual(Request $request)
     {
@@ -91,6 +91,7 @@ class PaymentController extends Controller
             $checkout = Checkout::create([
                 'amount' => $amount,
                 'id_price' => $validated['id_price'],
+                'id_customer' => $request->get('id_customer'),
                 'id_promo' => $validated['id_promo'],
                 'customer_name' => $validated['customer_name'],
                 'email_customer' => $request->get('email_customer'),
@@ -145,87 +146,87 @@ class PaymentController extends Controller
         }
     }
 
-    public function handleXenditCallback(Request $request)
-    {
-        try {
-            $data = $request->all();
+    // public function handleXenditCallback(Request $request)
+    // {
+    //     try {
+    //         $data = $request->all();
 
-            if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
-                return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
-            }
+    //         if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
+    //             return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
+    //         }
 
-            $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
+    //         $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
 
-            if (!$checkout) {
-                return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
-            }
+    //         if (!$checkout) {
+    //             return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
+    //         }
 
-            $statusPayment = strtoupper($data['status']);
-            $productCode = explode('#', $data['external_id'])[1] ?? null;
-            $productCodeFix = '#' . $productCode;
-            $product = Product::where('kode_produk', $productCodeFix)->first();
-            $akun = Akun::where('id_produk', $product->id)->first();
+    //         $statusPayment = strtoupper($data['status']);
+    //         $productCode = explode('#', $data['external_id'])[1] ?? null;
+    //         $productCodeFix = '#' . $productCode;
+    //         $product = Product::where('kode_produk', $productCodeFix)->first();
+    //         $akun = akun::where('id_produk', $product->id)->first();
 
-            if ($statusPayment === 'PAID' && $checkout->payment_status !== 'PAID') {
-                $checkout->update([
-                    'payment_status' => $statusPayment,
-                    'updated_at' => now(),
-                ]);
+    //         if ($statusPayment === 'PAID' && $checkout->payment_status !== 'PAID') {
+    //             $checkout->update([
+    //                 'payment_status' => $statusPayment,
+    //                 'updated_at' => now(),
+    //             ]);
 
-                if ($productCodeFix) {
-                    if ($product) {
-                        if ($akun) {
-                            $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
-                            $akun->save();
+    //             if ($productCodeFix) {
+    //                 if ($product) {
+    //                     if ($akun) {
+    //                         $akun->jumlah_pengguna = max(0, $akun->jumlah_pengguna - 1);
+    //                         $akun->save();
 
-                            $detailAkun = detailAkun::where('id_akun', $akun->id)->first();
-                            if ($detailAkun) {
-                                $detailAkun->jumlah_pengguna = max(0, $detailAkun->jumlah_pengguna + 1);
-                                $detailAkun->save();
-                            }
+    //                         $detailAkun = detailAkun::where('id_akun', $akun->id)->first();
+    //                         if ($detailAkun) {
+    //                             $detailAkun->jumlah_pengguna = max(0, $detailAkun->jumlah_pengguna + 1);
+    //                             $detailAkun->save();
+    //                         }
 
-                            $customer = Customer::where('id', $data['id_customer'])->first();
-                            if ($customer) {
-                                $customer->point += 50;
-                                $customer->id_akun = $akun->id;
-                                $customer->save();
-                            }
-                        }
-                    }
-                }
+    //                         $customer = Customer::where('id', $data['id_customer'])->first();
+    //                         if ($customer) {
+    //                             $customer->point += 50;
+    //                             $customer->id_akun = $akun->id;
+    //                             $customer->save();
+    //                         }
+    //                     }
+    //                 }
+    //             }
 
-                Transaction::create([
-                    'id_user' => null,
-                    'id_price' => $checkout->id_price,
-                    'id_customer' => $data['id_customer'],
-                    'id_payment' => null,
-                    'nama_customer' => $checkout->customer_name,
-                    'kode_transaksi' => $checkout->transaction_code,
-                    'tanggal_pembelian' => now(),
-                    'tanggal_berakhir' => now()->addDays(30),
-                    'harga' => $checkout->amount,
-                    'wa' => $checkout->phone_customer,
-                    'status' => 'completed',
-                    'link_wa' => "",
-                    'status_pembayaran' => 'Lunas',
-                    'promo' => $checkout->id_promo,
-                ]);
-            }
+    //             Transaction::create([
+    //                 'id_user' => null,
+    //                 'id_price' => $checkout->id_price,
+    //                 'id_customer' => $data['id_customer'],
+    //                 'id_payment' => null,
+    //                 'nama_customer' => $checkout->customer_name,
+    //                 'kode_transaksi' => $checkout->transaction_code,
+    //                 'tanggal_pembelian' => now(),
+    //                 'tanggal_berakhir' => now()->addDays(30),
+    //                 'harga' => $checkout->amount,
+    //                 'wa' => $checkout->phone_customer,
+    //                 'status' => 'completed',
+    //                 'link_wa' => "",
+    //                 'status_pembayaran' => 'Lunas',
+    //                 'promo' => $checkout->id_promo,
+    //             ]);
+    //         }
 
-            $akunDetails = detailAkun::where('id_akun', $akun->id)->first();
+    //         $akunDetails = detailAkun::where('id_akun', $akun->id)->first();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment status updated and transaction recorded',
-                'data' => [
-                    'akun' => $akun,
-                    'detailAkun' => $akunDetails
-                ]
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Payment status updated and transaction recorded',
+    //             'data' => [
+    //                 'akun' => $akun,
+    //                 'detailAkun' => $akunDetails
+    //             ]
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    //     }
+    // }
 
     public function handleXenditCallbackManual(Request $request)
     {
@@ -289,7 +290,7 @@ class PaymentController extends Controller
     //     );
     // }
 
-    public function historyTransaction($id)
+   public function historyTransaction($id)
     {
         try {
             $customer = Customer::with('akun')->find($id);
@@ -306,10 +307,14 @@ class PaymentController extends Controller
                 ->orderBy('tanggal_pembelian', 'desc')
                 ->get();
 
-            if ($transactions->isEmpty()) {
+             if ($transactions->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No transactions found for this user.'
+                    'message' => 'No transactions found for this user.',
+                    'data' => [
+                        'transactions' => [],
+                        'akun' => $customer->akun
+                    ]
                 ], 404);
             }
 
@@ -324,7 +329,8 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'data' => []
             ], 500);
         }
     }

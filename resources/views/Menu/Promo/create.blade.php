@@ -23,7 +23,7 @@ Add Promo
                     </div>
                     <div class="form-group">
                         <label class="form-label">Link video youtube</label>
-                        <input type="url" name="link_video" class="form-control" placeholder="https://www....." required>
+                        <input type="url" name="link_video" class="form-control" placeholder="https://www.....">
                     </div>
                     <div class="form-group">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
@@ -31,7 +31,7 @@ Add Promo
                     </div>
                     <div class="form-group">
                         <label for="image" class="form-label">Gambar Promo</label>
-                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <input type="file" name="image" class="form-control">
                     </div>
 
                     <button type="submit" class="btn btn-primary">Simpan</button>

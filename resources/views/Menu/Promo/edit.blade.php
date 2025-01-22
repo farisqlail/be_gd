@@ -24,7 +24,7 @@ Edit Promo
                     </div>
                     <div class="form-group">
                         <label class="form-label">Link video youtube</label>
-                        <input type="url" name="link_video" class="form-control" value="{{ $promo->link_video }}" required>
+                        <input type="url" name="link_video" class="form-control" value="{{ $promo->link_video }}">
                     </div>
                     <div class="form-group">
                         <label for="deskripsi" class="form-label">Deskripsi</label>

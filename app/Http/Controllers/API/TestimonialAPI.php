@@ -14,7 +14,7 @@ class TestimonialAPI extends Controller
     public function index()
     {
         try {
-            $testimonial = Testimonial::all();
+            $testimonial = Testimonial::where('published', 1)->get();
 
             return response()->json([
                 'testimonial' => $testimonial

@@ -167,7 +167,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Provide/Akun/Store', [transactionController::class, 'provideAkun']);
 
     //list payments
-    Route::resource('payments', PaymentsController::class);
+    Route::resource('payments', PaymentsController::class); 
 
     //list wa admin
     Route::resource('wa_admin', WaAdminController::class);

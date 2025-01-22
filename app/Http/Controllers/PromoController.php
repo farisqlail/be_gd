@@ -34,7 +34,7 @@ class PromoController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'link_video' => 'nullable|url',
+            'link_video' => "",
             'deskripsi' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -43,6 +43,7 @@ class PromoController extends Controller
             $imagePath = $request->file('image')->store('promos', 'public');
             $validatedData['image'] = $imagePath;
         }
+        $validatedData['link_video'] = $request->get('link_video') ? $request->get('link_video') : "";
 
         Promo::create($validatedData);
 
@@ -57,30 +58,32 @@ class PromoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $promo = Promo::findOrFail($id);
-    
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'link_video' => 'required|url',
             'deskripsi' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi gambar
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
-        if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
-            if ($promo->image) {
-                Storage::delete('public/' . $promo->image);
+
+        try {
+            $promo = Promo::findOrFail($id);
+            $promo->title = $validatedData['title'];
+            $promo->deskripsi = $validatedData['deskripsi'];
+            $promo->link_video = $request->get('link_video') ? $request->get('link_video') : "";
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('promos', 'public');
+                $promo->image = $imagePath;
             }
-    
-            // Simpan gambar baru
-            $validatedData['image'] = $request->file('image')->store('promos', 'public');
+
+            $promo->save();
+
+            return redirect()->route('promos.index')->with('success', 'Promo updated successfully.');
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
         }
-    
-        $promo->update($validatedData);
-    
-        return redirect()->route('promos.index')->with('success', 'Promo updated successfully.');
     }
-    
 
     public function destroy($id)
     {
