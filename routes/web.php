@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\akunController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\hargaController;
 use App\Http\Controllers\HomeController;
@@ -182,4 +183,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //video tutorial
     Route::resource('video_tutorials', VideoTutorialController::class);  
+
+    //banner
+    Route::resource('banners', BannerController::class);  
 });

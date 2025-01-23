@@ -43,6 +43,10 @@
     <a href="/video_tutorials"><i class="fa fa-tv"></i>
         <span>Video Tutorial</span></a>
 </li>
+<li class="{{ Request::is('banners') ? 'active' : '' }} {{ Request::is('banners/*') ? 'active' : '' }}">
+    <a href="/banners"><i class="fa fa-tv"></i>
+        <span>Banner</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}
