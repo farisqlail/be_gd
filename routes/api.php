@@ -4,6 +4,7 @@ use App\Http\Controllers\API\CustomersAPI;
 use App\Http\Controllers\API\get_products_by_shop;
 use App\Http\Controllers\API\getProduct;
 use App\Http\Controllers\API\PromoAPI;
+use App\Http\Controllers\API\TrendingAPI;
 use App\Http\Controllers\API\TestimonialAPI;
 use App\Http\Controllers\API\VoucherAPI;
 use App\Http\Controllers\API\PaymentController;
@@ -34,6 +35,8 @@ Route::get('/variances', [getProduct::class, 'getVariances']);
 Route::get('/get_detail_products/{id}', [getProduct::class, 'show']);
 
 Route::get('/promo', [PromoAPI::class, 'index']);
+
+Route::get('/trending', [TrendingAPI::class, 'index']);
 
 Route::get('/vouchers', [VoucherAPI::class, 'index']);
 
