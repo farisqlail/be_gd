@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\akunController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\hargaController;
 use App\Http\Controllers\HomeController;
@@ -22,7 +23,8 @@ use App\Http\Controllers\varianController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WaAdminController;
 use App\Http\Controllers\XenditController;
-use App\Http\Controllers\UserCountController;  
+use App\Http\Controllers\UserCountController;
+use App\Http\Controllers\VideoTutorialController; 
 use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -188,4 +190,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     //testimonial
     Route::post('/testimonial/{id}/publish', [TestimonialController::class, 'publish'])->name('testimonial.publish');  
+
+    //video tutorial
+    Route::resource('video_tutorials', VideoTutorialController::class);  
+
+    //banner
+    Route::resource('banners', BannerController::class);  
 });

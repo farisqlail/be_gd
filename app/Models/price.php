@@ -70,7 +70,8 @@ class price extends Model
                nama_sumber AS toko,   
                dp.detail AS detail_produk,   
                p.harga,  
-               vi.image_path AS image_url 
+               vi.image_path AS image_url,
+               dp.variance_name AS variance_name
         FROM prices p   
         JOIN detailProduct dp ON p.id_produk = dp.id  
         JOIN detailToko dt ON p.id_toko = dt.id  

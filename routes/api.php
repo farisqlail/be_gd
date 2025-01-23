@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\BannerAPI;
 use App\Http\Controllers\API\CustomersAPI;
 use App\Http\Controllers\API\get_products_by_shop;
 use App\Http\Controllers\API\getProduct;
@@ -11,6 +12,7 @@ use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\PaymentMethod;
 use App\Http\Controllers\API\PaymentMidtransController;
 use App\Http\Controllers\API\TransactionReminderController;
+use App\Http\Controllers\API\VideoTutorialAPI;
 use App\Http\Controllers\API\WaAdminAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +63,8 @@ Route::get('/reminders/expiring', [TransactionReminderController::class, 'getExp
 
 Route::get('/list-waadmin', [WaAdminAPI::class, 'index']);
 Route::get('/list-payments', [PaymentMethod::class, 'index']);
+Route::get('/video-tutorial', [VideoTutorialAPI::class, 'index']);
+Route::get('/banner', [BannerAPI::class, 'index']);
 
 Route::post('/payment/create', [PaymentMidtransController::class, 'createPayment']);  
 Route::post('/payment/callback', [PaymentMidtransController::class, 'handleCallback']);  
