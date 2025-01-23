@@ -83,30 +83,33 @@ Master Produk
 @include('Menu.Produk.Modal.modalJenis')
 <script src="{{ asset('../../bower_components/jquery/dist/jquery.min.js') }}"></script>
 <script>
-    $(document).ready(function(){
-    // DataTable
-        var produkTable=$("#produkTable").DataTable({
-                'paging': true,
-                'dom': 'lBfrtip',
-                'buttons':['excel'],
-                'lengthChange': true,
-                'searching': true,
-                'ordering': true,
-                "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50,100, "All"]],
-                'info': true,
-                'autoWidth': false,
-                'scrollX':true,
-                // 'columnDefs': [
-                //     { width: '20%', targets: 0 }, // Example width settings
-                //     { width: '30%', targets: 1 }
-                // ]
+    $(document).ready(function() {
+        // DataTable
+        var produkTable = $("#produkTable").DataTable({
+            'paging': true,
+            'dom': 'lBfrtip',
+            'buttons': ['excel'],
+            'lengthChange': true,
+            'searching': true,
+            'ordering': true,
+            "lengthMenu": [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "All"]
+            ],
+            'info': true,
+            'autoWidth': false,
+            'scrollX': true,
+            // 'columnDefs': [
+            //     { width: '20%', targets: 0 }, // Example width settings
+            //     { width: '30%', targets: 1 }
+            // ]
         });
 
         produkTable.buttons().container().appendTo('#produkTable_wrapper .col-md-6:eq(0)');
         $('.dataTables_filter').css({
-        'display': 'flex',
-        'justify-content': 'flex-end',
-        'align-items': 'center'
+            'display': 'flex',
+            'justify-content': 'flex-end',
+            'align-items': 'center'
         });
         var filterVarian = '&nbsp;<select name="varian" id="filterVarian" class="form-control select2" style="width: auto;text-align:left;"><option value="">--Pilih Varian--</option></select> &nbsp;';
         var filterJenis = '&nbsp;<select name="jenis" id="filterJenis" class="form-control select2" style="width: auto;text-align:left;"><option value="">--Pilih Jenis--</option></select>&nbsp;';
@@ -115,37 +118,37 @@ Master Produk
 
 
         $.ajax({
-            type:'get',
-            url:'/Produk/Get/Filter',
-            dataType:'json',
-            success:function(res){
-                $.each(res.data.types,function(key,value){
+            type: 'get',
+            url: '/Produk/Get/Filter',
+            dataType: 'json',
+            success: function(res) {
+                $.each(res.data.types, function(key, value) {
                     var option_types = `<option value="${value.id}">${value.type_name}</option>`;
                     $("#filterJenis").append(option_types);
                 });
-                $.each(res.data.variances,function(key,value){
+                $.each(res.data.variances, function(key, value) {
                     var option_variances = `<option value="${value.id}">${value.variance_name}</option>`;
                     $("#filterVarian").append(option_variances);
                 });
             }
         });
 
-        $(document).on('change','#filterVarian,#filterJenis',function(){
-            var varian=$("#filterVarian").val();
-            var jenis=$("#filterJenis").val();
+        $(document).on('change', '#filterVarian,#filterJenis', function() {
+            var varian = $("#filterVarian").val();
+            var jenis = $("#filterJenis").val();
             $.ajax({
-                type:'post',
-                url:'/Produk/Filter',
-                dataType:'json',
-                data:{
-                    _token:'{{csrf_token()}}',
-                    varian:varian,
-                    jenis:jenis,
+                type: 'post',
+                url: '/Produk/Filter',
+                dataType: 'json',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    varian: varian,
+                    jenis: jenis,
                 },
-                success:function(res){
+                success: function(res) {
                     produkTable.clear();
-                    $.each(res.products,function(key,value){
-                        var row=`
+                    $.each(res.products, function(key, value) {
+                        var row = `
                         <tr>
                             <td>${key+1}</td>
                             <td>${value.variance_name}</td>
@@ -171,21 +174,21 @@ Master Produk
                 }
             });
         });
-    // DataTable
-    // Showing Modal Form Store
-        $(".addProduk").click(function(){
-                try {
-                    $.ajax({
-                        url:'/Produk/fetch/form',
-                        type:'get',
-                        dataType:'json',
-                        success:function(res){
-                            $("#modalProduk .modal-body").html('');
-                            $("#modalProduk .modal-title").html(`
+        // DataTable
+        // Showing Modal Form Store
+        $(".addProduk").click(function() {
+            try {
+                $.ajax({
+                    url: '/Produk/fetch/form',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function(res) {
+                        $("#modalProduk .modal-body").html('');
+                        $("#modalProduk .modal-title").html(`
                                 Add Produk
                             `);
-                            $("#modalProduk .modal-body").html(`
-                                <form class="formAddProduk" method="post">
+                        $("#modalProduk .modal-body").html(`
+                                <form class="formAddProduk" method="post"  enctype="multipart/form-data">
                                     @csrf
                                 <div class="box-body">
                                         <div class="form-group">
@@ -228,6 +231,11 @@ Master Produk
                                             <label for="batas">Maximal Users</label>
                                             <input type="number" class="form-control" name="batas" id="batas" placeholder="1,2,3 ...">
                                         </div>
+                                        <div class="form-group">  
+                                            <label for="produkImage">Upload Image</label>  
+                                            <input type="file" class="form-control" name="images[]" id="produkImage" multiple required accept="image/*">  
+                                            <small class="form-text text-muted">You can upload multiple images (max 5).</small>  
+                                        </div>  
                                 </div>
                                 <!-- /.box-body -->
                                 <div class="modal-footer">
@@ -236,40 +244,40 @@ Master Produk
                                 </div>
                                 </form>
                             `);
-                            $("#modalProduk .select2").select2();
+                        $("#modalProduk .select2").select2();
 
-                        },
-                        error: function(xhr) {
-                                    // Handle error response
-                                    console.error("Error updating component:", xhr);
-                        }
-                    });
-                } catch (error) {
-                    console.log(error);
-                }
-            });
-    // Showing Modal Form Store
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        console.error("Error updating component:", xhr);
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        });
+        // Showing Modal Form Store
 
-    // Action Modal Form Store
-        $(document).on("submit",".formAddProduk",function(e){
+        // Action Modal Form Store
+        $(document).on("submit", ".formAddProduk", function(e) {
             e.preventDefault();
             var form = $('.formAddProduk');
             var url = '/Produk/Store';
             var formData = new FormData(form[0]);
 
             $.ajax({
-                type:'post',
-                url:url,
-                dataType:'json',
+                type: 'post',
+                url: url,
+                dataType: 'json',
                 data: formData,
                 contentType: false,
                 processData: false,
-                success:function(res){
+                success: function(res) {
                     produkTable.clear();
                     toastr.success(res.message, 'Success');
                     $("#modalProduk").modal('hide');
-                    $.each(res.products,function(key,value){
-                        var row=`
+                    $.each(res.products, function(key, value) {
+                        var row = `
                         <tr>
                             <td>${key+1}</td>
                             <td>${value.variance_name}</td>
@@ -295,21 +303,21 @@ Master Produk
                 }
             })
         });
-    // Action Modal Form Store
+        // Action Modal Form Store
 
-    // Showing Modal Form Update
-        $(document).on('click','.updateProduk',function(){
+        // Showing Modal Form Update
+        $(document).on('click', '.updateProduk', function() {
             try {
-            $.ajax({
-                url:'/Produk/fetch/form',
-                type:'get',
-                dataType:'json',
-                success:function(res){
-                    $("#modalProduk .modal-body").html('');
-                    $("#modalProduk .modal-title").html(`
+                $.ajax({
+                    url: '/Produk/fetch/form',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function(res) {
+                        $("#modalProduk .modal-body").html('');
+                        $("#modalProduk .modal-title").html(`
                         Update Produk
                     `);
-                    $("#modalProduk .modal-body").html(`
+                        $("#modalProduk .modal-body").html(`
                         <form class="formUpdateProduk" method="post">
                             @csrf
                         <div class="box-body">
@@ -361,40 +369,40 @@ Master Produk
                         </div>
                         </form>
                     `);
-                    $("#modalProduk .select2").select2();
+                        $("#modalProduk .select2").select2();
 
-                },
-                error: function(xhr) {
-                            // Handle error response
-                            console.error("Error updating component:", xhr);
-                }
-            });
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        console.error("Error updating component:", xhr);
+                    }
+                });
             } catch (error) {
                 console.log(error);
             }
         });
-    // Showing Modal Form Update
+        // Showing Modal Form Update
 
-    // Action Modal Form Update
-        $(document).on("submit",".formUpdateProduk",function(e){
+        // Action Modal Form Update
+        $(document).on("submit", ".formUpdateProduk", function(e) {
             e.preventDefault();
             var form = $('.formUpdateProduk');
             var url = '/Produk/Update';
             var formData = new FormData(form[0]);
 
             $.ajax({
-                type:'post',
-                url:url,
-                dataType:'json',
+                type: 'post',
+                url: url,
+                dataType: 'json',
                 data: formData,
                 contentType: false,
                 processData: false,
-                success:function(res){
+                success: function(res) {
                     produkTable.clear();
                     toastr.success(res.message, 'Success');
                     $("#modalProduk").modal('hide');
-                    $.each(res.products,function(key,value){
-                        var row=`
+                    $.each(res.products, function(key, value) {
+                        var row = `
                         <tr>
                             <td>${key+1}</td>
                             <td>${value.variance_name}</td>
@@ -420,21 +428,21 @@ Master Produk
                 }
             })
         });
-    // Action Modal Form Update
+        // Action Modal Form Update
 
-    // Showing Modal Form Delete
-        $(document).on('click','.deleteProduk',function(){
+        // Showing Modal Form Delete
+        $(document).on('click', '.deleteProduk', function() {
             try {
                 $.ajax({
-                url:'/Produk/fetch/form',
-                type:'get',
-                dataType:'json',
-                success:function(res){
-                    $("#modalProduk .modal-body").html('');
-                    $("#modalProduk .modal-title").html(`
+                    url: '/Produk/fetch/form',
+                    type: 'get',
+                    dataType: 'json',
+                    success: function(res) {
+                        $("#modalProduk .modal-body").html('');
+                        $("#modalProduk .modal-title").html(`
                         Delete Produk
                     `);
-                    $("#modalProduk .modal-body").html(`
+                        $("#modalProduk .modal-body").html(`
                         <form class="formDeleteProduk" method="post">
                             @csrf
                         <div class="box-body">
@@ -448,40 +456,40 @@ Master Produk
                         </div>
                         </form>
                     `);
-                    $("#modalProduk .select2").select2();
+                        $("#modalProduk .select2").select2();
 
-                },
-                error: function(xhr) {
-                            // Handle error response
-                            console.error("Error updating component:", xhr);
-                }
-            });
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        console.error("Error updating component:", xhr);
+                    }
+                });
             } catch (error) {
                 console.log(error);
             }
         });
-    // Showing Modal Form Delete
+        // Showing Modal Form Delete
 
-    // Action Modal Form Delete
-        $(document).on("submit",".formDeleteProduk",function(e){
+        // Action Modal Form Delete
+        $(document).on("submit", ".formDeleteProduk", function(e) {
             e.preventDefault();
             var form = $('.formDeleteProduk');
             var url = '/Produk/Delete';
             var formData = new FormData(form[0]);
 
             $.ajax({
-                type:'post',
-                url:url,
-                dataType:'json',
+                type: 'post',
+                url: url,
+                dataType: 'json',
                 data: formData,
                 contentType: false,
                 processData: false,
-                success:function(res){
+                success: function(res) {
                     produkTable.clear();
                     toastr.success(res.message, 'Success');
                     $("#modalProduk").modal('hide');
-                    $.each(res.products,function(key,value){
-                        var row=`
+                    $.each(res.products, function(key, value) {
+                        var row = `
                         <tr>
                             <td>${key+1}</td>
                             <td>${value.variance_name}</td>
@@ -507,7 +515,7 @@ Master Produk
                 }
             })
         });
-    // Action Modal Form Delete
+        // Action Modal Form Delete
 
     });
 </script>

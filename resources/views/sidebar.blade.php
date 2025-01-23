@@ -39,6 +39,10 @@
     <a href="/wa_admin"><i class="fa fa-phone"></i>
         <span>WA Admin</span></a>
 </li>
+<li class="{{ Request::is('video_tutorials') ? 'active' : '' }} {{ Request::is('video_tutorials/*') ? 'active' : '' }}">
+    <a href="/video_tutorials"><i class="fa fa-tv"></i>
+        <span>Video Tutorial</span></a>
+</li>
 {{-- @endcan
 
 @can('Master Data') --}}
