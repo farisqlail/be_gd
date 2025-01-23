@@ -19,6 +19,10 @@
     <a href="/Promo"><i class="fa fa-gift"></i>
         <span>Promo</span></a>
 </li>
+<li class="{{ Request::is('Trending') ? 'active' : '' }} {{ Request::is('Trending/*') ? 'active' : '' }}">
+    <a href="/Trending"><i class="fa fa-line-chart" aria-hidden="true"></i>
+        <span>Trending</span></a>
+</li>
 <li class="{{ Request::is('vouchers') ? 'active' : '' }} {{ Request::is('vouchers/*') ? 'active' : '' }}">
     <a href="/vouchers"><i class="fa fa-percent"></i>
         <span>Vouchers</span></a>
