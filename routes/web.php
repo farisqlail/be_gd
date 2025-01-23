@@ -23,6 +23,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WaAdminController;
 use App\Http\Controllers\XenditController;
 use App\Http\Controllers\UserCountController;  
+use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/Testimonial/{id}/edit', [TestimonialController::class, 'edit'])->name('testimonial.edit');
     Route::put('/Testimonial/{id}', [TestimonialController::class, 'update'])->name('testimonial.update');
     Route::delete('/Testimonial/{id}', [TestimonialController::class, 'destroy'])->name('testimonial.destroy');
+
+    // Routes for Trending CRUD
+    Route::get('Trending', [TrendingController::class, 'index'])->name('trendings.index');
+    Route::get('Trending/create', [TrendingController::class, 'create'])->name('trendings.create');
+    Route::post('Trending', [TrendingController::class, 'store'])->name('trendings.store');
+    Route::get('Trending/{id}/edit', [TrendingController::class, 'edit'])->name('trendings.edit');
+    Route::put('Trending/{id}', [TrendingController::class, 'update'])->name('trendings.update');
+    Route::delete('Trending/{id}', [TrendingController::class, 'destroy'])->name('trendings.destroy');
+
 
     //Customer
     Route::resource('customers', CustomerController::class);
