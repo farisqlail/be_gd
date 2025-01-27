@@ -28,6 +28,30 @@ class getProduct extends Controller
         }
     }
 
+    public function varianceDetail(String $variance)
+    {
+        try {
+            $products = price::get_products($variance, "website");
+
+            $result = [];
+
+            foreach ($products as $item) {
+                $variance = $item->variance_name;
+                if (!isset($result[$variance])) {
+                    $result[$variance] = [];
+                }
+                $result[$variance][] = $item; 
+            }
+            return response()->json([
+                'products' => $result
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function getVariances()
     {
         try {

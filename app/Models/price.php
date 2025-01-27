@@ -47,11 +47,12 @@ class price extends Model
         return DB::select($query);
     }
 
-    public static function get_products()
+    public static function get_products($namaVarian = null, $namaPlatform = null)
     {
         $query = '  
         WITH detailProduct AS (  
-            SELECT p.*, pt.type_name, v.variance_name,   
+            SELECT p.*, pt.type_name, v.variance_name, 
+            CONCAT(durasi, " ", ket_durasi) AS kategori,  
                    CONCAT(variance_name, " ", type_name, " ", durasi, " ", ket_durasi) AS detail  
             FROM products p   
             JOIN variances v ON p.id_varian = v.id  
@@ -69,6 +70,7 @@ class price extends Model
                dt.nama_platform AS platform,   
                nama_sumber AS toko,   
                dp.detail AS detail_produk,   
+               dp.kategori as kategori,
                p.harga,  
                vi.image_path AS image_url,
                dp.variance_name AS variance_name
@@ -76,8 +78,15 @@ class price extends Model
         JOIN detailProduct dp ON p.id_produk = dp.id  
         JOIN detailToko dt ON p.id_toko = dt.id  
         LEFT JOIN variance_images vi ON vi.variance_id = dp.id_varian  
-        WHERE p.deleted = false  
+        WHERE p.deleted = false 
         ';
+
+        if ($namaVarian) {
+            $query .= ' and dp.variance_name="' . $namaVarian.'"';
+        }
+        if ($namaPlatform) {
+            $query .= ' and dt.nama_platform="' . $namaPlatform.'"';
+        }
 
         return DB::select($query);
     }

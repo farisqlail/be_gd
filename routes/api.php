@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/get_detail_products', [getProduct::class, 'index']);
 Route::get('/variances', [getProduct::class, 'getVariances']);
 Route::get('/get_detail_products/{id}', [getProduct::class, 'show']);
+Route::get('/get_detail_products/variance/{variance}', [getProduct::class, 'varianceDetail']);
 
 Route::get('/promo', [PromoAPI::class, 'index']);
 
