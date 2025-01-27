@@ -27,6 +27,8 @@ Add Testimonial
                         <textarea name="description" id="description" class="form-control" required></textarea>
                     </div>
 
+                    <input type="text" name="published" value="0" hidden>
+
                     <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>

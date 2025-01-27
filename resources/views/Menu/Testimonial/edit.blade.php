@@ -29,6 +29,8 @@ Edit Testimonial
                         <textarea name="description" id="description" class="form-control" required>{{ $testimonial->deskripsi }}</textarea>
                     </div>
 
+                    <input type="text" name="published" value="{{ $testimonial->published }}" hidden>
+
                     <button type="submit" class="btn btn-primary">Update</button>
                 </form>
 
