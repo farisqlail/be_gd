@@ -11,16 +11,23 @@ class VoucherAPI extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $voucher = Voucher::all();
+            $id_variance = $request->query('id_variance');
+            if ($id_variance) {
+                $vouchers = Voucher::where('id_variance', $id_variance)->get();
+            } else { 
+                $vouchers = Voucher::all();
+            }
 
             return response()->json([
-                'voucher' => $voucher
+                'success' => true,
+                'vouchers' => $vouchers
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
+                'success' => false,
                 'message' => $th->getMessage()
             ], 500);
         }

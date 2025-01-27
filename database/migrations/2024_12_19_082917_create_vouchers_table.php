@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('id_variance');
+            $table->bigInteger('id_product_type');
             $table->string('name');
             $table->bigInteger('amount');
             $table->timestamps();
