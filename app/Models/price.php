@@ -82,10 +82,10 @@ class price extends Model
         ';
 
         if ($namaVarian) {
-            $query .= ' and dp.variance_name="' . $namaVarian.'"';
+            $query .= ' and dp.variance_name="' . $namaVarian . '"';
         }
         if ($namaPlatform) {
-            $query .= ' and dt.nama_platform="' . $namaPlatform.'"';
+            $query .= ' and dt.nama_platform="' . $namaPlatform . '"';
         }
 
         return DB::select($query);
@@ -94,5 +94,15 @@ class price extends Model
     public function product()
     {
         return $this->belongsTo(product::class, 'id_produk', 'id');
+    }
+
+    public function variance()
+    {
+        return $this->belongsTo(Variance::class, 'id_varian', 'id');
+    }
+
+    public function productType()
+    {
+        return $this->belongsTo(product_type::class, 'id_jenis', 'id');
     }
 }

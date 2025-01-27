@@ -61,4 +61,9 @@ class product extends Model
     {
         return $this->belongsTo(variance::class, 'id_varian');
     }
+
+    public function productType()
+    {
+        return $this->belongsTo(product_type::class, 'id_jenis', 'id');
+    }
 }

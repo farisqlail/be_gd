@@ -14,12 +14,24 @@ class VoucherAPI extends Controller
     public function index(Request $request)
     {
         try {
+            // Retrieve query parameters  
             $id_variance = $request->query('id_variance');
+            $id_product_type = $request->query('id_product_type'); // Get id_product_type from the request  
+
+            // Initialize the query  
+            $query = Voucher::query();
+
+            // Apply filters if they are provided  
             if ($id_variance) {
-                $vouchers = Voucher::where('id_variance', $id_variance)->get();
-            } else { 
-                $vouchers = Voucher::all();
+                $query->where('id_variance', $id_variance);
             }
+
+            if ($id_product_type) {
+                $query->where('id_product_type', $id_product_type); // Filter by id_product_type  
+            }
+
+            // Execute the query and get the results  
+            $vouchers = $query->get();
 
             return response()->json([
                 'success' => true,

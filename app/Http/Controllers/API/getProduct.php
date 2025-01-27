@@ -40,7 +40,7 @@ class getProduct extends Controller
                 if (!isset($result[$variance])) {
                     $result[$variance] = [];
                 }
-                $result[$variance][] = $item; 
+                $result[$variance][] = $item;
             }
             return response()->json([
                 'products' => $result
@@ -85,23 +85,26 @@ class getProduct extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(String $id)
-    {
-
-        $price = Price::with(['product.variance'])
-            ->where('id', $id)
-            ->first();
-
-        if (!$price) {
-            return response()->json([
-                'message' => 'Price not found',
-            ], 404);
-        }
-
-        return response()->json([
-            'price' => $price,
-        ], 200);
-    }
+    public function show(String $id_variance)  
+    {  
+        // Fetch prices associated with the given id_variance and id_toko = 11  
+        $prices = Price::with(['product.variance', 'product.productType']) // Eager load variance and product type  
+            ->whereHas('product.variance', function ($query) use ($id_variance) {  
+                $query->where('id', $id_variance);  
+            })  
+            ->where('id_toko', 11) // Filter by id_toko  
+            ->get();  
+      
+        if ($prices->isEmpty()) {  
+            return response()->json([  
+                'message' => 'No prices found for the given variance and store.',  
+            ], 404);  
+        }  
+      
+        return response()->json([  
+            'prices' => $prices,  
+        ], 200);  
+    } 
 
     /**
      * Show the form for editing the specified resource.
