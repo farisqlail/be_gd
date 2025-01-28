@@ -54,7 +54,7 @@ class transactionController extends Controller
             if ($checkout->created_at) {
                 try {
                     Transaction::create([
-                        'id_user' => null,
+                        'id_user' => 0,
                         'id_price' => $checkout->id_price,
                         'id_customer' => $checkout->id_customer ? $checkout->id_customer : null,
                         'nama_customer' => $checkout->customer_name,
