@@ -34,6 +34,36 @@ class transactionController extends Controller
         }
     }
 
+    public function indexHistory(Request $request)
+    {
+        try {
+            // Fetch transactions with a status of 'completed'  
+            $transactions = Transaction::with(['price.product'])
+                ->where('status', 'completed')
+                ->get();
+
+            $transactions = $transactions->map(function ($transaction) {
+                return [
+                    'id' => $transaction->id,
+                    'nama_customer' => $transaction->nama_customer,
+                    'wa' => $transaction->wa, // Include WhatsApp number  
+                    'kode_transaksi' => $transaction->kode_transaksi,
+                    'tanggal_pembelian' => $transaction->tanggal_pembelian,
+                    'harga' => $transaction->harga,
+                    'status' => $transaction->status,
+                    'product_name' => $transaction->price->product->variance->variance_name ?? 'N/A', // Adjust based on your product field  
+                ];
+            });
+
+            return view('Menu.history.index', compact('transactions')); // Return the view with transactions  
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     public function indexTransactionPending()
     {
         $transactions = Checkout::where('payment_status', 'PENDING')

@@ -74,4 +74,8 @@ class transaction extends Model
         return $this->belongsTo(Customer::class, 'id_customer');  
     }  
 
+    public function price()  
+    {  
+        return $this->belongsTo(Price::class, 'id_price', 'id'); // Adjust foreign key and local key as necessary  
+    }  
 }

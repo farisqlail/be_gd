@@ -167,6 +167,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Update', [transactionController::class, 'update']);
     Route::get('/Transaksi/pending', [TransactionController::class, 'indexTransactionPending'])->name('transactions.pending.index');  
     Route::put('/transactions/{id}/pending', [TransactionController::class, 'updateTransactionPending'])->name('transactions.pending.update');  
+    Route::get('/transactions/history', [TransactionController::class, 'indexHistory']);  
 
     // Payment Method
     Route::post('/Payment/Store', [paymentController::class, 'store']);

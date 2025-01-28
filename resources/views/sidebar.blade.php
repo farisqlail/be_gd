@@ -165,7 +165,7 @@
         <li class="{{Request::is('Transaksi/Status/Update') ? 'active':''}}"><a href="/Transaksi/Status/Update"><i
                     class="fa fa-circle-o"></i>Update Pembayaran</a>
         </li>
-        <li class="{{Request::is('Transaksi/History') ? 'active' :''}}"><a href="/Transaksi/History"><i
+        <li class="{{Request::is('transactions/history') ? 'active' :''}}"><a href="/transactions/history"><i
                     class="fa fa-circle-o"></i>
                 History</a></li>
     </ul>
