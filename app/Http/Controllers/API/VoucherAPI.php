@@ -16,7 +16,7 @@ class VoucherAPI extends Controller
         try {
             // Retrieve query parameters  
             $id_variance = $request->query('id_variance');
-            $id_product_type = $request->query('id_product_type'); // Get id_product_type from the request  
+            $id_product_type = $request->query('id_product_type');
 
             // Initialize the query  
             $query = Voucher::query();
@@ -27,7 +27,7 @@ class VoucherAPI extends Controller
             }
 
             if ($id_product_type) {
-                $query->where('id_product_type', $id_product_type); // Filter by id_product_type  
+                $query->where('id_product_type', $id_product_type);  
             }
 
             // Execute the query and get the results  

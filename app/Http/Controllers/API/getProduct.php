@@ -55,7 +55,7 @@ class getProduct extends Controller
     public function getVariances()
     {
         try {
-            $variance = variance::all();
+            $variance = variance::where('deleted', 0)->get();
             return response()->json([
                 'variance' => $variance
             ], 200);
@@ -92,7 +92,8 @@ class getProduct extends Controller
             ->whereHas('product.variance', function ($query) use ($id_variance) {  
                 $query->where('id', $id_variance);  
             })  
-            ->where('id_toko', 11) // Filter by id_toko  
+            ->where('id_toko', 11)
+            ->where('deleted', 0) 
             ->get();  
       
         if ($prices->isEmpty()) {  
