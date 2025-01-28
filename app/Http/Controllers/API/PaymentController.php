@@ -290,49 +290,48 @@ class PaymentController extends Controller
     //     );
     // }
 
-    public function historyTransaction($id)  
-    {  
-        try {   
-            $customer = Customer::with('akun')->find($id);  
-       
-            if (!$customer) {  
-                return response()->json([  
-                    'success' => false,  
-                    'message' => 'Customer not found.'  
-                ], 404);  
-            }  
-      
-            $transactions = Transaction::where('id_customer', $id)  
-                ->with('customer.akun') 
-                ->orderBy('tanggal_pembelian', 'desc')  
-                ->get();  
-      
-            if ($transactions->isEmpty()) {  
-                return response()->json([  
+    public function historyTransaction($id)
+    {
+        try {
+            $customer = Customer::with('akun')->find($id);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found.'
+                ], 404);
+            }
+
+            $transactions = Transaction::with(['price.product.variance'])
+                ->where('id_customer', $id)
+                ->orderBy('tanggal_pembelian', 'desc')
+                ->get();
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
                     'success' => true,
-                    'message' => 'No transactions found for this user.',  
-                    'data' => [  
-                        'transactions' => [],  
+                    'message' => 'No transactions found for this user.',
+                    'data' => [
+                        'transactions' => [],
                         'akun' => $customer->akun
-                    ]  
-                ], 200); 
-            }  
-      
-            return response()->json([  
-                'success' => true,  
-                'data' => [  
-                    'transactions' => $transactions,  
-                    'akun' => $customer->akun  
-                ],  
-                'message' => 'Transaction history retrieved successfully.'  
-            ], 200);  
-        } catch (\Exception $e) {  
-            return response()->json([  
-                'success' => false,  
-                'message' => 'An error occurred: ' . $e->getMessage(),  
-                'data' => []  
-            ], 500);  
-        }  
-    }  
-    
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transactions' => $transactions,
+                    'akun' => $customer->akun
+                ],
+                'message' => 'Transaction history retrieved successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
 }
