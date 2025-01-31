@@ -32,6 +32,8 @@ Transaksi
                             <th>Total</th>
                             <th>Status</th>
                             <th>Pembayaran</th>
+                            <th>Nomor Klaim</th>
+                            <th>Klaim Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -46,6 +48,8 @@ Transaksi
                             <td>{{ $transaction->amount }}</td>
                             <td>{{ $transaction->payment_status }}</td>
                             <td>{{ $transaction->payment_method }}</td>
+                            <td>{{ $transaction->claim_number }}</td>
+                            <td>{{ $transaction->status }}</td>
                             <td>
                                 <form action="{{ route('transactions.pending.update', $transaction->transaction_code) }}" method="POST">
                                     @csrf
