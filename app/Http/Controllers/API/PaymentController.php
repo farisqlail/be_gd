@@ -99,6 +99,7 @@ class PaymentController extends Controller
                 'transaction_code' => $validated['transaction_code'],
                 'payment_status' => $statusPayment,
                 'payment_method' => $validated['payment_method'],
+                'status' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -126,17 +127,16 @@ class PaymentController extends Controller
 
         try {
             $checkout = Checkout::where('transaction_code', $validated['transaction_code'])->first();
-            
-            if(!$checkout){
+
+            if (!$checkout) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Checkout not found.',
                 ], 404);
-    
             }
 
             $checkout->status = $validated['status'];
-            if(isset($validated['claim_number'])){
+            if (isset($validated['claim_number'])) {
                 $checkout->claim_number = $validated['claim_number'];
             }
             $checkout->save();
@@ -183,6 +183,113 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function handleXenditCallbackManual(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
+                return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
+            }
+
+            $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
+
+            if (!$checkout) {
+                return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
+            }
+
+            $statusPayment = strtoupper($data['status']);
+            $productCode = explode('#', $data['external_id'])[1] ?? null;
+            $productCodeFix = '#' . $productCode;
+            $product = Product::where('kode_produk', $productCodeFix)->first();
+
+            if ($statusPayment === 'PENDING' && $checkout->payment_status !== 'PENDING') {
+                $checkout->update([
+                    'payment_status' => $statusPayment,
+                    'updated_at' => now(),
+                ]);
+
+                if ($productCodeFix) {
+                    if ($product) {
+                        $customer = Customer::where('id', $data['id_customer'])->first();
+                        if ($customer) {
+                            $customer->point += 50;
+                            $customer->save();
+                        }
+                    }
+                }
+            }
+
+            // $this->sendWhatsAppMessage(62895378052885, "Ada pembayaran pending nih dengan kode transaksi " . $checkout->transaction_code . " dan pembayaran melalui " . $checkout->payment_method);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment status updated and transaction recorded',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function historyTransaction($id)
+    {
+        try {
+            $customer = Customer::with('akun')->find($id);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found.'
+                ], 404);
+            }
+
+            $transactions = Transaction::with(['price.product.variance'])
+                ->where('id_customer', $id)
+                ->orderBy('tanggal_pembelian', 'desc')
+                ->get();
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No transactions found for this user.',
+                    'data' => [
+                        'transactions' => [],
+                        'akun' => $customer->akun
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transactions' => $transactions,
+                    'akun' => $customer->akun
+                ],
+                'message' => 'Transaction history retrieved successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    // private function sendWhatsAppMessage($phoneNumber, $message)
+    // {
+    //     // Example using Twilio  
+    //     $client = new \Twilio\Rest\Client('TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN');
+
+    //     $client->messages->create(
+    //         "whatsapp:$phoneNumber", // WhatsApp number  
+    //         [
+    //             'from' => 'whatsapp:YOUR_TWILIO_WHATSAPP_NUMBER',
+    //             'body' => $message
+    //         ]
+    //     );
+    // }
 
     // public function handleXenditCallback(Request $request)
     // {
@@ -265,111 +372,4 @@ class PaymentController extends Controller
     //         return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     //     }
     // }
-
-    public function handleXenditCallbackManual(Request $request)
-    {
-        try {
-            $data = $request->all();
-
-            if (!isset($data['external_id'], $data['status'], $data['id_customer'])) {
-                return response()->json(['success' => false, 'message' => 'Invalid callback data'], 400);
-            }
-
-            $checkout = Checkout::where('transaction_code', $data['transaction_code'])->first();
-
-            if (!$checkout) {
-                return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
-            }
-
-            $statusPayment = strtoupper($data['status']);
-            $productCode = explode('#', $data['external_id'])[1] ?? null;
-            $productCodeFix = '#' . $productCode;
-            $product = Product::where('kode_produk', $productCodeFix)->first();
-
-            if ($statusPayment === 'PENDING' && $checkout->payment_status !== 'PENDING') {
-                $checkout->update([
-                    'payment_status' => $statusPayment,
-                    'updated_at' => now(),
-                ]);
-
-                if ($productCodeFix) {
-                    if ($product) {
-                        $customer = Customer::where('id', $data['id_customer'])->first();
-                        if ($customer) {
-                            $customer->point += 50;
-                            $customer->save();
-                        }
-                    }
-                }
-            }
-
-            // $this->sendWhatsAppMessage(62895378052885, "Ada pembayaran pending nih dengan kode transaksi " . $checkout->transaction_code . " dan pembayaran melalui " . $checkout->payment_method);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment status updated and transaction recorded',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    // private function sendWhatsAppMessage($phoneNumber, $message)
-    // {
-    //     // Example using Twilio  
-    //     $client = new \Twilio\Rest\Client('TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN');
-
-    //     $client->messages->create(
-    //         "whatsapp:$phoneNumber", // WhatsApp number  
-    //         [
-    //             'from' => 'whatsapp:YOUR_TWILIO_WHATSAPP_NUMBER',
-    //             'body' => $message
-    //         ]
-    //     );
-    // }
-
-    public function historyTransaction($id)
-    {
-        try {
-            $customer = Customer::with('akun')->find($id);
-
-            if (!$customer) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Customer not found.'
-                ], 404);
-            }
-
-            $transactions = Transaction::with(['price.product.variance'])
-                ->where('id_customer', $id)
-                ->orderBy('tanggal_pembelian', 'desc')
-                ->get();
-
-            if ($transactions->isEmpty()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'No transactions found for this user.',
-                    'data' => [
-                        'transactions' => [],
-                        'akun' => $customer->akun
-                    ]
-                ], 200);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'transactions' => $transactions,
-                    'akun' => $customer->akun
-                ],
-                'message' => 'Transaction history retrieved successfully.'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data' => []
-            ], 500);
-        }
-    }
 }

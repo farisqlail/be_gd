@@ -19,6 +19,7 @@ class Checkout extends Model
         'transaction_code',
         'amount',
         'payment_status',
-        'payment_method'
+        'payment_method',
+        'claim_number'
     ];
 }
