@@ -116,6 +116,44 @@ class PaymentController extends Controller
         }
     }
 
+    public function updateInvoiceStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'transaction_code' => 'required|string',
+            'status' => 'required|integer',
+            'claim_number' => 'nullable|string'
+        ]);
+
+        try {
+            $checkout = Checkout::where('transaction_code', $validated['transaction_code'])->first();
+            
+            if(!$checkout){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Checkout not found.',
+                ], 404);
+    
+            }
+
+            $checkout->status = $validated['status'];
+            if(isset($validated['claim_number'])){
+                $checkout->claim_number = $validated['claim_number'];
+            }
+            $checkout->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Checkout status updated.',
+                'invoice' => $checkout,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function checkPaymentStatus(Request $request)
     {
         $validated = $request->validate([

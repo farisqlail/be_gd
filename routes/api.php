@@ -53,6 +53,7 @@ Route::get('/profile', [CustomersAPI::class, 'profile']);
 
 // Route::post('/create-invoice', [PaymentController::class, 'createInvoice']);
 Route::post('/create-invoice', [PaymentController::class, 'createInvoiceManual']);
+Route::post('/update-status-invoice', [PaymentController::class, 'updateInvoiceStatus'])->withoutMiddleware(['auth:sanctum']);
 Route::post('/pay', [PaymentController::class, 'createEWalletInvoice']);
 Route::get('/get-invoice/{invoiceId}', [PaymentController::class, 'getInvoice']);
 // Route::post('/confirm-payment', [PaymentController::class, 'handleXenditCallback']);
