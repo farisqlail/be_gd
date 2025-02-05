@@ -100,10 +100,10 @@ Member
                         </div>
                         <div class="form-group">
                             <label for="Job Title">Roles</label>
-                            <select name="role" class="form-control">
+                            <select name="id_role" class="form-control">
                                 <option value="">--Choose Role--</option>
                                 @foreach ($roles as $item)
-                                <option value="{{$item->name}}">{{$item->name}}</option>
+                                <option value="{{$item->id}}">{{$item->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -156,8 +156,11 @@ Member
                         </div>
                         <div class="form-group">
                             <label for="Job Title">Roles</label>
-                            <select name="role" class="form-control select2 roles" style="width: 100%">
-
+                            <select name="id_role" class="form-control">
+                                <option value="">--Choose Role--</option>
+                                @foreach ($roles as $item)
+                                <option value="{{$item->id}}">{{$item->name}}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -207,43 +210,46 @@ Member
 
 <script src="{{ asset('../../bower_components/jquery/dist/jquery.min.js') }}"></script>
 <script>
-    $(document).ready(function(){
-        var memberTable=$("#memberTable").DataTable({
+    $(document).ready(function() {
+        var memberTable = $("#memberTable").DataTable({
             'paging': true,
             'dom': 'lBfrtip',
             'buttons': ['excel'],
             'lengthChange': true,
             'searching': true,
             'ordering': true,
-            "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            "lengthMenu": [
+                [25, 50, 100, -1],
+                [25, 50, 100, "All"]
+            ],
             'info': true,
             'autoWidth': false,
             'scrollX': true
-               
+
         });
         $(".roles").html('');
         $('.edit-btn').click(function() {
-                var id = $(this).data('target').split('-')[1];
-                console.log(id);
+            var id = $(this).data('target').split('-')[1];
+            console.log(id);
             $.ajax({
-                    url:"{{url('Member/fetchUserRole')}}",
-                    type:'post',
-                    data:{
-                        idUser:id,
-                        _token:'{{csrf_token()}}'
-                    },
-                    dataType:'json',
-                    success:function(res){
-                        $(".roles").html('<option value="">-- Choose Role --</option>');
-                        var roleName="";
-                        $.each(res.userRole,function(key,value){
-                            roleName=value.name;
-                        });
-                        $.each(res.roles,function (key,value){
-                            $(".roles").append('<option value="' + value.name + '" ' + (roleName === value.name ? 'selected' : '') + '>' + value.name + '</option>');
-                        });
+                url: "{{url('Member/fetchUserRole')}}",
+                type: 'post',
+                data: {
+                    idUser: id,
+                    _token: '{{csrf_token()}}'
+                },
+                dataType: 'json',
+                success: function(res) {
+                    $(".roles").html('<option value="">-- Choose Role --</option>');
+                    var roleName = "";
+                    $.each(res.userRole, function(key, value) {
+                        roleName = value.name;
+                    });
+                    $.each(res.roles, function(key, value) {
+                        $(".roles").append('<option value="' + value.name + '" ' + (roleName === value.name ? 'selected' : '') + '>' + value.name + '</option>');
+                    });
 
-                    }
+                }
             });
         });
     });

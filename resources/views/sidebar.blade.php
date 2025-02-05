@@ -15,6 +15,7 @@
     <a href="/Member"><i class="fa fa-user"></i>
         <span>Member</span></a>
 </li>
+@if(Auth::user()->id_role == 3 || Auth::user()->id_role === 1)
 <li class="{{ Request::is('Promo') ? 'active' : '' }} {{ Request::is('Promo/*') ? 'active' : '' }}">
     <a href="/Promo"><i class="fa fa-gift"></i>
         <span>Promo</span></a>
@@ -23,13 +24,22 @@
     <a href="/Trending"><i class="fa fa-line-chart" aria-hidden="true"></i>
         <span>Trending</span></a>
 </li>
-<li class="{{ Request::is('vouchers') ? 'active' : '' }} {{ Request::is('vouchers/*') ? 'active' : '' }}">
-    <a href="/vouchers"><i class="fa fa-percent"></i>
-        <span>Vouchers</span></a>
+<li class="{{ Request::is('banners') ? 'active' : '' }} {{ Request::is('banners/*') ? 'active' : '' }}">
+    <a href="/banners"><i class="fa fa-tv"></i>
+        <span>Banner</span></a>
 </li>
 <li class="{{ Request::is('Testimonial') ? 'active' : '' }} {{ Request::is('Testimonial/*') ? 'active' : '' }}">
     <a href="/Testimonial"><i class="fa fa-star"></i>
         <span>Testimonial</span></a>
+</li>
+<li class="{{ Request::is('video_tutorials') ? 'active' : '' }} {{ Request::is('video_tutorials/*') ? 'active' : '' }}">
+    <a href="/video_tutorials"><i class="fa fa-tv"></i>
+        <span>Video Tutorial</span></a>
+</li>
+@endif
+<li class="{{ Request::is('vouchers') ? 'active' : '' }} {{ Request::is('vouchers/*') ? 'active' : '' }}">
+    <a href="/vouchers"><i class="fa fa-percent"></i>
+        <span>Vouchers</span></a>
 </li>
 <li class="{{ Request::is('customers') ? 'active' : '' }} {{ Request::is('customers/*') ? 'active' : '' }}">
     <a href="/customers"><i class="fa fa-users"></i>
@@ -42,14 +52,6 @@
 <li class="{{ Request::is('wa_admin') ? 'active' : '' }} {{ Request::is('wa_admin/*') ? 'active' : '' }}">
     <a href="/wa_admin"><i class="fa fa-phone"></i>
         <span>WA Admin</span></a>
-</li>
-<li class="{{ Request::is('video_tutorials') ? 'active' : '' }} {{ Request::is('video_tutorials/*') ? 'active' : '' }}">
-    <a href="/video_tutorials"><i class="fa fa-tv"></i>
-        <span>Video Tutorial</span></a>
-</li>
-<li class="{{ Request::is('banners') ? 'active' : '' }} {{ Request::is('banners/*') ? 'active' : '' }}">
-    <a href="/banners"><i class="fa fa-tv"></i>
-        <span>Banner</span></a>
 </li>
 {{-- @endcan
 
@@ -147,7 +149,7 @@
 {{-- @endcan
 
 @can('Transaksi') --}}
-
+@if(Auth::user()->id_role === 1 || Auth::user()->id_role == 2)
 <li class="treeview {{ Request::is('Transaksi/*') ? 'active' : '' }}">
     <a href="#">
         <i class="fa fa-edit"></i> <span>Transaksi</span>
@@ -170,6 +172,7 @@
                 History</a></li>
     </ul>
 </li>
+@endif
 {{-- @endcan
 
 @can('Finance') --}}
