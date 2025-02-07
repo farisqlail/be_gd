@@ -16,7 +16,7 @@ class product extends Model
         'durasi',
         'ket_durasi',
         'batas_pengguna',
-        'deskripsi',
+        'description',
     ];
 
     public static function indexProduk($idVarian = null, $idJenis = null)

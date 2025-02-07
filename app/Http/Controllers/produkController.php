@@ -15,14 +15,14 @@ class produkController extends Controller
     public function index()
     {
         try {
-            $produk=product::indexProduk();
-            $variances=variance::where('deleted',false)->get();
-            $types=product_type::where('deleted',false)->get();
-            return view('Menu.Produk.produk',compact('produk','variances','types'));
-            //code...
+            $produk = product::indexProduk();
+            $variances = variance::where('deleted', false)->get();
+            $types = product_type::where('deleted', false)->get();
+
+            return view('Menu.Produk.produk', compact('produk', 'variances', 'types'));
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
@@ -33,44 +33,43 @@ class produkController extends Controller
     public function create()
     {
         try {
-            $variances=variance::where('deleted',false)->get();
-            $types=product_type::where('deleted',false)->get();
-            $products=product::where('deleted',false)->get();
-            return response()->json([
-                'products'=>$products,
-                'variances'=>$variances,
-                'types'=>$types
-            ]);
+            $variances = variance::where('deleted', false)->get();
+            $types = product_type::where('deleted', false)->get();
+            $products = product::where('deleted', false)->get();
+
+            return view('Menu.Produk.create', compact('variances', 'types', 'products'));
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
 
-    public function getFilter(){
+    public function getFilter()
+    {
         try {
-            $data['variances']=variance::where('deleted',false)->get();
-            $data['types']=product_type::where('deleted',false)->get();
+            $data['variances'] = variance::where('deleted', false)->get();
+            $data['types'] = product_type::where('deleted', false)->get();
             return response()->json([
-                'data'=>$data
+                'data' => $data
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
 
-    public function FetchFilter(Request $request){
+    public function FetchFilter(Request $request)
+    {
         try {
-            $products=product::indexProduk(idVarian:$request->varian,idJenis:$request->jenis);
+            $products = product::indexProduk(idVarian: $request->varian, idJenis: $request->jenis);
             return response()->json([
-                'products'=>$products
+                'products' => $products
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
@@ -82,27 +81,24 @@ class produkController extends Controller
     {
         try {
 
-            $varian=variance::find($request->nama_produk);
-            $jenis=product_type::find($request->jenis_produk);
-            $kode="#".substr($varian->variance_name,0,2).substr($varian->variance_name,-1,1).$request->durasi.substr($jenis->type_name,0,2).$jenis->id;
+            $varian = variance::find($request->nama_produk);
+            $jenis = product_type::find($request->jenis_produk);
+            $kode = "#" . substr($varian->variance_name, 0, 2) . substr($varian->variance_name, -1, 1) . $request->durasi . substr($jenis->type_name, 0, 2) . $jenis->id;
             $produk = new product();
             $produk->id_varian = $request->nama_produk;
             $produk->id_jenis = $request->jenis_produk;
-            $produk->kode_produk=$kode;
+            $produk->kode_produk = $kode;
             $produk->durasi = $request->durasi;
-            $produk->ket_durasi= $request->keterangan;
+            $produk->ket_durasi = $request->keterangan;
             $produk->biaya = $request->biaya;
             $produk->batas_pengguna = $request->batas;
+            $produk->description = $request->description;
             $produk->save();
 
-            $products=product::indexProduk();
-            return response()->json([
-                'products'=>$products,
-                'message'=>"Data Berhasil Ditambahkan"
-            ]);
+            return redirect()->route('produk.index')->with(['success', 'Produk Berhasil dibuat']);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
@@ -120,36 +116,38 @@ class produkController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $variances = variance::where('deleted', false)->get();
+        $types = product_type::where('deleted', false)->get();
+
+        return view('Menu.Produk.edit', compact('product', 'variances', 'types'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        $varian=variance::find($request->nama_produk);
-            $jenis=product_type::find($request->jenis_produk);
-            $kode="#".substr($varian->variance_name,0,2).substr($varian->variance_name,-1,1).$request->durasi.substr($jenis->type_name,0,2).$jenis->id;
+        $varian = variance::find($request->nama_produk);
+        $jenis = product_type::find($request->jenis_produk);
+        $kode = "#" . substr($varian->variance_name, 0, 2) . substr($varian->variance_name, -1, 1) . $request->durasi . substr($jenis->type_name, 0, 2) . $jenis->id;
+
         try {
-            product::where('id',$request->id)->update([
-                'id_varian'=>$request->nama_produk,
-                'id_jenis'=>$request->jenis_produk,
-                'kode_produk'=>$kode,
-                'durasi'=>$request->durasi,
-                'ket_durasi'=>$request->keterangan,
-                'biaya'=>$request->biaya,
-                'batas_pengguna'=>$request->batas,
+            product::where('id', $id)->update([
+                'id_varian' => $request->nama_produk,
+                'id_jenis' => $request->jenis_produk,
+                'kode_produk' => $kode,
+                'durasi' => $request->durasi,
+                'ket_durasi' => $request->keterangan,
+                'biaya' => $request->biaya,
+                'batas_pengguna' => $request->batas,
+                'description' => $request->description
             ]);
 
-            $produk=product::indexProduk();
-            return response()->json([
-                'products'=>$produk,
-                'message'=>"Data Berhasil Diupdate"
-            ]);
+            return redirect()->route('produk.index')->with(['success', 'Produk Berhasil diubah']);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
@@ -160,17 +158,14 @@ class produkController extends Controller
     public function destroy(Request $request)
     {
         try {
-            product::where('id',$request->id)->update([
-                'deleted'=>true
+            product::where('id', $request->id)->update([
+                'deleted' => true
             ]);
-            $produk=product::indexProduk();
-            return response()->json([
-                'products'=>$produk,
-                'message'=>"Data Berhasil Dihapus"
-            ]);
+
+            return redirect()->route('produk.index')->with(['success', 'Produk Berhasil dihapus']);
         } catch (\Throwable $th) {
             return response()->json([
-                'message'=>$th->getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }

@@ -11,11 +11,14 @@
 
 @can('Members') --}}
 
+@if(Auth::check() && (Auth::user()->id_role === 1))
 <li class="{{ Request::is('Member') ? 'active' : '' }} {{ Request::is('Member/*') ? 'active' : '' }}">
     <a href="/Member"><i class="fa fa-user"></i>
         <span>Member</span></a>
 </li>
-@if(Auth::user()->id_role == 3 || Auth::user()->id_role === 1)
+@endif
+
+@if(Auth::check() && (Auth::user()->id_role === 3 || Auth::user()->id_role === 1))
 <li class="{{ Request::is('Promo') ? 'active' : '' }} {{ Request::is('Promo/*') ? 'active' : '' }}">
     <a href="/Promo"><i class="fa fa-gift"></i>
         <span>Promo</span></a>
@@ -37,6 +40,8 @@
         <span>Video Tutorial</span></a>
 </li>
 @endif
+
+@if(Auth::check() && (Auth::user()->id_role === 1))
 <li class="{{ Request::is('vouchers') ? 'active' : '' }} {{ Request::is('vouchers/*') ? 'active' : '' }}">
     <a href="/vouchers"><i class="fa fa-percent"></i>
         <span>Vouchers</span></a>
@@ -53,10 +58,12 @@
     <a href="/wa_admin"><i class="fa fa-phone"></i>
         <span>WA Admin</span></a>
 </li>
+@endif
 {{-- @endcan
 
-@can('Master Data') --}}
+ @can('Master Data') --}}
 
+@if(Auth::check() && (Auth::user()->id_role === 1))
 <li class="treeview {{ Request::is('MasterData/*') ? 'active' : '' }}">
     <a href="#">
         <i class="fa fa-pie-chart"></i>
@@ -146,10 +153,11 @@
         </li>
     </ul>
 </li>
+@endif
 {{-- @endcan
 
 @can('Transaksi') --}}
-@if(Auth::user()->id_role === 1 || Auth::user()->id_role == 2)
+@if(Auth::check() && (Auth::user()->id_role === 1 || Auth::user()->id_role === 2))
 <li class="treeview {{ Request::is('Transaksi/*') ? 'active' : '' }}">
     <a href="#">
         <i class="fa fa-edit"></i> <span>Transaksi</span>
@@ -177,6 +185,7 @@
 
 @can('Finance') --}}
 
+@if(Auth::check() && (Auth::user()->id_role === 1))
 <li class="treeview">
     <a href="#">
         <i class="fa fa-fw fa-money"></i> <span>Finance & Accounting</span>
@@ -199,4 +208,5 @@
             class="fa fa-fw fa-gears"></i>
         <span>Access Management</span></a>
 </li>
+@endif
 {{-- @endcan --}}

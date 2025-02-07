@@ -13,7 +13,7 @@ Master Produk
     <div class="col-xs-12">
         <div class="box">
             <div class="box-header">
-                <a class="btn btn bg-olive margin addProduk" data-toggle="modal" data-target="#modalProduk"><i
+                <a class="btn btn bg-olive margin" href="{{ route('produk.create') }}"><i
                         class="fa fa-plus"></i>
                     <span>&nbsp; Add Produk</span></a>
                 <a class="btn btn-xs" data-toggle="modal" data-target="#manageVarian"><i class="fa fa-tag"></i>
@@ -37,6 +37,7 @@ Master Produk
                             <th>Durasi</th>
                             <th>Biaya</th>
                             <th>Maximal User</th>
+                            <th>Description</th>
                             <th><i class="fa fa-bars"></i></th>
                         </tr>
                     </thead>
@@ -53,13 +54,16 @@ Master Produk
                             <td>{{$item->durasi}} {{$item->ket_durasi}}</td>
                             <td>{{$item->biaya}}</td>
                             <td>{{$item->batas_pengguna}}</td>
+                            <td>{{$item->description}}</td>
                             <td>
-                                <center> <a data-toggle="modal" class="updateProduk" data-id="{{$item->id}}"
-                                        data-target="#modalProduk"><i title="Update produk"
+                                <center> <a href="{{ route('produk.edit', $item->id) }}" class="btn btn-success"><i title="Update produk"
                                             class="fa fa-fw fa-pencil-square-o"></i></a>
-                                    <a data-toggle="modal" class="deleteProduk" data-id="{{$item->id}}"
-                                        data-target="#modalProduk"><i title="Delete produk"
-                                            class="fa fa-fw fa-trash-o"></i></a>
+                                    <form action="{{ route('produk.destroy', $item->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger"><i title="Delete produk"
+                                                class="fa fa-fw fa-trash-o"></i></button>
+                                    </form>
                                 </center>
                             </td>
                         </tr>
@@ -190,7 +194,7 @@ Master Produk
                         $("#modalProduk .modal-body").html(`
                                 <form class="formAddProduk" method="post"  enctype="multipart/form-data">
                                     @csrf
-                                <div class="box-body">
+                                    <div class="box-body">
                                         <div class="form-group">
                                             <label>Produk</label>
                                             <select name="nama_produk" id="varianProduk" class="form-control select2" style="width: 100%;">
@@ -232,11 +236,10 @@ Master Produk
                                             <input type="number" class="form-control" name="batas" id="batas" placeholder="1,2,3 ...">
                                         </div>
                                         <div class="form-group">  
-                                            <label for="produkImage">Upload Image</label>  
-                                            <input type="file" class="form-control" name="images[]" id="produkImage" multiple required accept="image/*">  
-                                            <small class="form-text text-muted">You can upload multiple images (max 5).</small>  
-                                        </div>  
-                                </div>
+                                            <label for="produkImage">Deskripsi</label>  
+                                            <textarea class="form-control" name="description" rows="10" cols="80"></textarea>
+                                        </div>
+                                    </div>
                                 <!-- /.box-body -->
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -286,6 +289,7 @@ Master Produk
                             <td>${value.durasi} ${value.ket_durasi}</td>
                             <td>${value.biaya}</td>
                             <td>${value.batas_pengguna}</td>
+                            <td>${value.description}</td>
                             <td>
                                 <center> <a data-toggle="modal" class="updateProduk" data-id="${value.id}"
                                         data-target="#modalProduk"><i title="Update produk"
@@ -360,6 +364,10 @@ Master Produk
                                 <div class="form-group">
                                     <label for="batas">Maximal Users</label>
                                     <input type="number" class="form-control" name="batas" id="batas" value="${res.products[0].batas_pengguna}">
+                                </div>
+                                <div class="form-group">  
+                                    <label for="produkImage">Deskripsi</label>  
+                                    <textarea class="form-control" name="description" rows="10" cols="80">${res.products[0].description}</textarea>
                                 </div>
                         </div>
                         <!-- /.box-body -->

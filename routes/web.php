@@ -24,7 +24,7 @@ use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\WaAdminController;
 use App\Http\Controllers\XenditController;
 use App\Http\Controllers\UserCountController;
-use App\Http\Controllers\VideoTutorialController; 
+use App\Http\Controllers\VideoTutorialController;
 use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -95,12 +95,14 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     // Produk
-    Route::get('/MasterData/Produk', [produkController::class, 'index']);
+    Route::get('/MasterData/Produk', [produkController::class, 'index'])->name('produk.index');
     Route::get('/Produk/fetch/form', [produkController::class, 'create']);
     Route::get('/Produk/Get/Filter', [produkController::class, 'getFilter']);
-    Route::post('/Produk/Store', [produkController::class, 'store']);
-    Route::post('/Produk/Update', [produkController::class, 'update']);
-    Route::post('/Produk/Delete', [produkController::class, 'destroy']);
+    Route::get('/produk/create', [produkController::class, 'create'])->name('produk.create');
+    Route::get('/produk/edit/{id}', [produkController::class, 'edit'])->name('produk.edit');
+    Route::post('/produk/store', [produkController::class, 'store'])->name('produk.store');
+    Route::put('/produk/update/{id}', [produkController::class, 'update'])->name('produk.update');
+    Route::delete('/produk/delete/{id}', [produkController::class, 'destroy'])->name('produk.destroy');
     Route::post('/Produk/Filter', [produkController::class, 'FetchFilter']);
 
     // Varian
@@ -165,9 +167,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Today/updateStatus', [transactionController::class, 'updateStatus']);
     Route::post('/Transaksi/Store', [transactionController::class, 'store']);
     Route::post('/Transaksi/Update', [transactionController::class, 'update']);
-    Route::get('/Transaksi/pending', [TransactionController::class, 'indexTransactionPending'])->name('transactions.pending.index');  
-    Route::put('/transactions/{id}/pending', [TransactionController::class, 'updateTransactionPending'])->name('transactions.pending.update');  
-    Route::get('/transactions/history', [TransactionController::class, 'indexHistory']);  
+    Route::get('/Transaksi/pending', [TransactionController::class, 'indexTransactionPending'])->name('transactions.pending.index');
+    Route::put('/transactions/{id}/pending', [TransactionController::class, 'updateTransactionPending'])->name('transactions.pending.update');
+    Route::get('/transactions/history', [TransactionController::class, 'indexHistory']);
 
     // Payment Method
     Route::post('/Payment/Store', [paymentController::class, 'store']);
@@ -180,7 +182,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/Transaksi/Provide/Akun/Store', [transactionController::class, 'provideAkun']);
 
     //list payments
-    Route::resource('payments', PaymentsController::class); 
+    Route::resource('payments', PaymentsController::class);
 
     //list wa admin
     Route::resource('wa_admin', WaAdminController::class);
@@ -190,11 +192,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('user_counts/increment', [UserCountController::class, 'incrementCount'])->name('user_counts.increment');
 
     //testimonial
-    Route::post('/testimonial/{id}/publish', [TestimonialController::class, 'publish'])->name('testimonial.publish');  
+    Route::post('/testimonial/{id}/publish', [TestimonialController::class, 'publish'])->name('testimonial.publish');
 
     //video tutorial
-    Route::resource('video_tutorials', VideoTutorialController::class);  
+    Route::resource('video_tutorials', VideoTutorialController::class);
 
     //banner
-    Route::resource('banners', BannerController::class);  
+    Route::resource('banners', BannerController::class);
 });
