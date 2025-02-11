@@ -92,9 +92,12 @@ class getProduct extends Controller
             ->whereHas('product.variance', function ($query) use ($id_variance) {  
                 $query->where('id', $id_variance);  
             })  
-            ->where('id_toko', 11)
+            ->whereHas('sumberTransaksi', function ($query) {  
+                $query->where('nama_sumber', 'website'); // Filter by nama_sumber
+            })  
             ->where('deleted', 0) 
-            ->get();  
+            ->where('nama_sumber', 'website') 
+            ->get();
       
         if ($prices->isEmpty()) {  
             return response()->json([  

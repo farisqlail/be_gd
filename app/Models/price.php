@@ -105,4 +105,9 @@ class price extends Model
     {
         return $this->belongsTo(product_type::class, 'id_jenis', 'id');
     }
+
+    public function sumberTransaksi()
+    {
+        return $this->belongsTo(sumberTransaksi::class, 'id_toko', 'id'); // Adjust foreign key and local key as necessary
+    }
 }

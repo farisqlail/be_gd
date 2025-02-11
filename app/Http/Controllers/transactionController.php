@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\akun;
 use App\Models\Checkout;
+use App\Models\Customer;
 use App\Models\detail_transaction;
 use App\Models\detailAkun;
 use App\Models\payment_method;
@@ -99,6 +100,12 @@ class transactionController extends Controller
                         'promo' => $checkout->id_promo ? $checkout->id_promo : 0,
                         'payment_method' => $checkout->payment_method,
                     ]);
+
+                    $customer = Customer::where('id', $checkout->id_customer ? $checkout->id_customer : null)->first();
+                    if ($customer) {
+                        $customer->point += 50;
+                        $customer->save();
+                    }
                 } catch (\Exception $e) {
                     return redirect()->route('transactions.pending.index')->with('error', 'Failed to create transaction: ' . $e->getMessage());
                 }

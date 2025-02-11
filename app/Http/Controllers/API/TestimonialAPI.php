@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Testimonial;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,12 @@ class TestimonialAPI extends Controller
             'name' => 'required|max:255',
             'description' => 'required',
         ]);
+
+        $customer = Customer::where('id', $request->get('id') ? $request->get('id') : null)->first();
+        if ($customer) {
+            $customer->point += 10;
+            $customer->save();
+        }
 
         Testimonial::create([
             'name' => $request->name,

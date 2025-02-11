@@ -104,6 +104,14 @@ class PaymentController extends Controller
                 'updated_at' => now(),
             ]);
 
+            if($request->get('claim_point') == true){
+                $customer = Customer::where('id', $request->get('id_customer'))->first();
+                if ($customer) {
+                    $customer->point = 0;
+                    $customer->save();
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Checkout created and invoice generated successfully.',
