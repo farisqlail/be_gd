@@ -60,6 +60,7 @@ Route::get('/get-invoice/{invoiceId}', [PaymentController::class, 'getInvoice'])
 Route::post('/confirm-payment', [PaymentController::class, 'handleXenditCallbackManual']);
 Route::post('/check-payment-status', [PaymentController::class, 'checkPaymentStatus']);
 Route::get('/transactions/history/{id}', [PaymentController::class, 'historyTransaction']); 
+Route::post('/transactions/upgrade', [PaymentController::class, 'checkUpgrade']); 
 
 Route::get('/reminders/expiring', [TransactionReminderController::class, 'getExpiringTransactions']);
 

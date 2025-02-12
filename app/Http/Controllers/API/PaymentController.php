@@ -7,11 +7,13 @@ use App\Models\akun;
 use App\Models\Checkout;
 use App\Models\Customer;
 use App\Models\detailAkun;
+use App\Models\price;
 use App\Models\product;
 use App\Models\transaction;
 use Illuminate\Http\Request;
 // use App\services\XenditService;
 use Illuminate\Support\Facades\Log;
+use Midtrans\Transaction as MidtransTransaction;
 
 class PaymentController extends Controller
 {
@@ -104,7 +106,7 @@ class PaymentController extends Controller
                 'updated_at' => now(),
             ]);
 
-            if($request->get('claim_point') == true){
+            if ($request->get('claim_point') == true) {
                 $customer = Customer::where('id', $request->get('id_customer'))->first();
                 if ($customer) {
                     $customer->point = 0;
@@ -284,6 +286,28 @@ class PaymentController extends Controller
             ], 500);
         }
     }
+
+    public function checkUpgrade(Request $request)
+    {
+        $currentDate = now();
+        $dateThreshold = $currentDate->subDays(10);
+        $transactions = transaction::where('tanggal_berakhir', '>=', $dateThreshold)
+            ->where('wa', $request->get('wa'))
+            ->get();
+
+        if ($transactions->isEmpty()) {
+            return response()->json(['message' => 'No transactions found within the last 10 days.'], 404);
+        }
+
+        $prices = [];
+
+        foreach ($transactions as $transaction) {
+            $prices = $transaction->price;
+        }
+
+        return response()->json($prices);
+    }
+
 
     // private function sendWhatsAppMessage($phoneNumber, $message)
     // {
