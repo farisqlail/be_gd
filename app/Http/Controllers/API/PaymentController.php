@@ -308,6 +308,26 @@ class PaymentController extends Controller
         return response()->json($prices);
     }
 
+    public function claimTransactionCode(Request $request)
+    {
+
+        $transactions = transaction::claimTransaction($request->get('transaction_code'));
+
+        if ($transactions->isEmpty()) {
+            return response()->json(['message' => 'not found'], 404);
+        }
+
+        $prices = [];
+
+        foreach ($transactions as $transaction) {
+            $prices = $transaction->price;
+        }
+
+        return response()->json($prices);
+    }
+
+
+
 
     // private function sendWhatsAppMessage($phoneNumber, $message)
     // {
