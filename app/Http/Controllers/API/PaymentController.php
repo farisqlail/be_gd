@@ -10,6 +10,7 @@ use App\Models\detailAkun;
 use App\Models\price;
 use App\Models\product;
 use App\Models\transaction;
+use App\Models\variance;
 use Illuminate\Http\Request;
 // use App\services\XenditService;
 use Illuminate\Support\Facades\Log;
@@ -299,15 +300,27 @@ class PaymentController extends Controller
             return response()->json(['message' => 'No transactions found within the last 10 days.'], 404);
         }
 
-        $prices = [];
+        $response = [];
 
         foreach ($transactions as $transaction) {
             $prices = $transaction->price;
+
+            if ($prices) {
+                $kodeToko = $prices->kode_toko;
+                $productCode = explode('#', $kodeToko);
+                $productCodeFix = '#' . $productCode[1];
+                $product = Product::where('kode_produk', $productCodeFix)->first();
+                $variance = variance::where('id', $product->id_varian)->where('deleted', 0)->first();
+
+                $response['data'][] = [
+                    "prices" => $prices,
+                    "variance" => $variance
+                ];
+            }   
         }
 
-        return response()->json($prices);
+        return response()->json($response);
     }
-
 
     // private function sendWhatsAppMessage($phoneNumber, $message)
     // {
