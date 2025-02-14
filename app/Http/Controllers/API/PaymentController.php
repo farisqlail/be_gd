@@ -322,6 +322,34 @@ class PaymentController extends Controller
         return response()->json($response);
     }
 
+    public function claimTransactionCode(Request $request)
+    {
+        try {
+            $transactions = transaction::claimTransaction($request->get('transaction_code'));
+
+            if (empty($transactions)) {
+                return response()->json(['message' => 'not found'], 404);
+            }
+
+            // $prices = [];
+
+            // foreach ($transactions as $transaction) {
+            //     $prices = $transaction;
+            // }
+
+            return response()->json($transactions[0]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+
+
+
     // private function sendWhatsAppMessage($phoneNumber, $message)
     // {
     //     // Example using Twilio  

@@ -69,6 +69,26 @@ class transaction extends Model
         return DB::select($query);
     }
 
+    public static function claimTransaction($transaksi_uuid=null){
+        $query='
+            with detailAkun as(
+                select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi
+                from akuns a join detail_akuns da on a.id=da.id_akun
+                join detail_transactions dt on da.id=dt.id_detail_akun
+            )
+            select da.email, da.password, da.profile, da.pin
+            from transactions t 
+            join detailAkun da on t.id = da.id_transaksi
+            where t.kode_transaksi = "'.$transaksi_uuid.'"';
+
+
+
+            // select t.*,da.*,dt.keterangan
+            // from detail_transactions dt join transaksis t on dt.id_transaksi=t.id
+            // join detailAkuns da on dt.id_detail_akun=da.id
+        return DB::select($query);
+    }
+
     public function customer()  
     {  
         return $this->belongsTo(Customer::class, 'id_customer');  
