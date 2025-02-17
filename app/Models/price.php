@@ -47,11 +47,11 @@ class price extends Model
         return DB::select($query);
     }
 
-    public static function get_products($namaVarian = null, $namaPlatform = null)
+    public static function get_products($namaVarian = null, $namaPlatform = null, $type_name= null, $durasi = null, $ket_durasi = null)
     {
         $query = '  
         WITH detailProduct AS (  
-            SELECT p.*, pt.type_name, v.variance_name, 
+            SELECT p.*, pt.type_name, v.variance_name,
             CONCAT(durasi, " ", ket_durasi) AS kategori,  
                    CONCAT(variance_name, " ", type_name, " ", durasi, " ", ket_durasi) AS detail  
             FROM products p   
@@ -87,6 +87,17 @@ class price extends Model
         if ($namaPlatform) {
             $query .= ' and dt.nama_platform="' . $namaPlatform . '"';
         }
+        if ($type_name) {
+            $query .= ' and dp.type_name in ' . $type_name . '';
+        }
+        // if ($durasi) {
+        //     $query .= ' and dp.durasi="' . $durasi . '"';
+        // }
+        // if ($ket_durasi) {
+        //     $query .= ' and dt.ket_durasi="' . $ket_durasi . '"';
+        // }
+
+        
 
         return DB::select($query);
     }

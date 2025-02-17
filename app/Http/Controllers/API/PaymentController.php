@@ -290,36 +290,59 @@ class PaymentController extends Controller
 
     public function checkUpgrade(Request $request)
     {
-        $currentDate = now();
-        $dateThreshold = $currentDate->subDays(10);
-        $transactions = transaction::where('tanggal_berakhir', '>=', $dateThreshold)
-            ->where('wa', $request->get('wa'))
-            ->get();
+        try {
+            $currentDate = now();
+            $dateThreshold = $currentDate->subDays(10);
+            $transactions = transaction::currentProduct($request->get('email'),$dateThreshold);
 
-        if ($transactions->isEmpty()) {
-            return response()->json(['message' => 'No transactions found within the last 10 days.'], 404);
+            if (empty($transactions)) {
+                return response()->json(['message' => 'NOT FOUND'], 200);
+            }
+
+            Log::info('masih disini');
+            $transaction = $transactions[0];
+
+
+            if($transaction->type_name == "Platinum"){
+                return response()->json(['message' => 'CANT UPGRADE'], 200);
+            }else{
+                $variance = $transaction->variance_name;
+                $durasi = $transaction->durasi;
+                $ket_durasi = $transaction->ket_durasi;
+                if ($transaction->type_name == "Private"){
+                    $type_name = '("Platinum")';
+                }else if($transaction->type_name == "Sharing"){
+                    $type_name = '("Private", "Platinum")';
+                }else{
+                    return response()->json(['message' => 'TYPE NAME UNDEFINED'], 200);
+                }
+            }
+
+            Log::info('udah disini');
+
+            $products = price::get_products($variance, "website", $type_name, $durasi, $ket_durasi);
+
+            $result = [];
+            foreach ($products as $item) {
+                $variance = $item->variance_name;
+                if (!isset($result[$variance])) {
+                    $result[$variance] = [];
+                }
+                $item->harga_upgrade = $item->harga - $transaction->harga;
+                $result[$variance][] = $item;
+            }
+
+            return response()->json([
+                "current_product"=>$transaction,
+                'products' => $result
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
         }
-
-        $response = [];
-
-        foreach ($transactions as $transaction) {
-            $prices = $transaction->price;
-
-            if ($prices) {
-                $kodeToko = $prices->kode_toko;
-                $productCode = explode('#', $kodeToko);
-                $productCodeFix = '#' . $productCode[1];
-                $product = Product::where('kode_produk', $productCodeFix)->first();
-                $variance = variance::where('id', $product->id_varian)->where('deleted', 0)->first();
-
-                $response['data'][] = [
-                    "prices" => $prices,
-                    "variance" => $variance
-                ];
-            }   
-        }
-
-        return response()->json($response);
     }
 
     public function claimTransactionCode(Request $request)
