@@ -90,12 +90,12 @@ class price extends Model
         if ($type_name) {
             $query .= ' and dp.type_name in ' . $type_name . '';
         }
-        // if ($durasi) {
-        //     $query .= ' and dp.durasi="' . $durasi . '"';
-        // }
-        // if ($ket_durasi) {
-        //     $query .= ' and dt.ket_durasi="' . $ket_durasi . '"';
-        // }
+        if ($durasi) {
+            $query .= ' and dp.durasi="' . $durasi . '"';
+        }
+        if ($ket_durasi) {
+            $query .= ' and dp.ket_durasi="' . $ket_durasi . '"';
+        }
 
         
 

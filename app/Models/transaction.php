@@ -95,7 +95,7 @@ class transaction extends Model
             join detail_transactions dt on da.id=dt.id_detail_akun
         )
         
-            select distinct dp.* -- dp.detail,nama_platform,nama_sumber,t.*,dp.id_produk,email,nomor_akun,id_platform,dp.id_toko
+            select distinct dp.*, t.nama_customer
             from transactions t join detailPrices dp on t.id_price=dp.id
             left join detailAkuns da on t.id=da.id_transaksi        
             where da.email="'.$email_account.'" and t.tanggal_berakhir >="'.$dateThreshold.'"' ;
@@ -109,13 +109,14 @@ class transaction extends Model
     public static function claimTransaction($transaksi_uuid=null){
         $query='
             with detailAkun as(
-                select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi
+                select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi,a.id_produk
                 from akuns a join detail_akuns da on a.id=da.id_akun
                 join detail_transactions dt on da.id=dt.id_detail_akun
             )
-            select da.email, da.password, da.profile, da.pin
+            select da.email, da.password, da.profile, da.pin, tc.template
             from transactions t 
             join detailAkun da on t.id = da.id_transaksi
+            join template_chats tc on tc.id_produk = da.id_produk
             where t.kode_transaksi = "'.$transaksi_uuid.'"';
 
 

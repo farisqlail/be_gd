@@ -351,7 +351,7 @@ class PaymentController extends Controller
             $transactions = transaction::claimTransaction($request->get('transaction_code'));
 
             if (empty($transactions)) {
-                return response()->json(['message' => 'not found'], 404);
+                return response()->json(['message' => 'not found'], 200);
             }
 
             // $prices = [];
