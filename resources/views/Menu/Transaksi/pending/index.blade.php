@@ -13,11 +13,14 @@ Transaksi
     <div class="col-xs-12">
         <div class="box">
             <div class="box-header">
-                <a class="btn btn bg-olive margin addTransaksi" data-toggle="modal" data-target="#modalTransaksi"><i
-                        class="fa fa-plus"></i>
-                    <span>&nbsp; Add Transaksi</span></a>
-                <a class="btn btn-xs" data-toggle="modal" data-target="#managePayment"><i class="fa fa-tag"></i>
-                    <span>&nbsp; Manage Payment</span></a>
+                <a class="btn btn bg-olive margin addTransaksi" data-toggle="modal" data-target="#modalTransaksi">
+                    <i class="fa fa-plus"></i>
+                    <span>&nbsp; Add Transaksi</span>
+                </a>
+                <a class="btn btn-xs" data-toggle="modal" data-target="#managePayment">
+                    <i class="fa fa-tag"></i>
+                    <span>&nbsp; Manage Payment</span>
+                </a>
             </div>
 
             <div class="box-body">
@@ -51,16 +54,39 @@ Transaksi
                             <td>{{ $transaction->claim_number }}</td>
                             <td>{{ $transaction->status }}</td>
                             <td>
-                                <form action="{{ route('transactions.pending.update', $transaction->transaction_code) }}" method="POST">
+                                <form action="{{ route('transactions.pending.update', $transaction->transaction_code) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="btn btn-primary">Selesai</button>
                                 </form>
+
+                                @if($transaction->image_path)
+                                    <button type="button" class="btn btn-info btn-sm view-image" data-image="{{ asset('/uploads/invoices/' . $transaction->image_path) }}" data-toggle="modal" data-target="#imageModal">
+                                        Lihat Gambar
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal untuk Menampilkan Gambar -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Bukti Pembayaran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Bukti Pembayaran">
             </div>
         </div>
     </div>
@@ -84,6 +110,12 @@ Transaksi
             'info': true,
             'autoWidth': false,
             'scrollX': true
+        });
+
+        // Event handler untuk tombol "Lihat Gambar"
+        $(".view-image").on("click", function() {
+            var imageUrl = $(this).data("image");
+            $("#modalImage").attr("src", imageUrl);
         });
     });
 </script>

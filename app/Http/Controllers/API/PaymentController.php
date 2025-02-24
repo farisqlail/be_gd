@@ -86,11 +86,19 @@ class PaymentController extends Controller
             'transaction_code' => 'required|string',
             'payment_status' => 'nullable|string',
             'payment_method' => 'nullable|string',
+            'image_path' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
             $amount = $validated['amount'];
             $statusPayment = 'PENDING';
+            $imageName = null;
+            if ($request->hasFile('image_path')) {
+                $image = $request->file('image_path');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/invoices'), $imageName); 
+            } 
+
             $checkout = Checkout::create([
                 'amount' => $amount,
                 'id_price' => $validated['id_price'],
@@ -102,6 +110,7 @@ class PaymentController extends Controller
                 'transaction_code' => $validated['transaction_code'],
                 'payment_status' => $statusPayment,
                 'payment_method' => $validated['payment_method'],
+                'image_path' => $imageName,
                 'status' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -293,7 +302,7 @@ class PaymentController extends Controller
         try {
             $currentDate = now();
             $dateThreshold = $currentDate->subDays(2);
-            $transactions = transaction::currentProduct($request->get('email'),$dateThreshold);
+            $transactions = transaction::currentProduct($request->get('email'), $dateThreshold);
 
             $transaction = $transactions[0];
 
@@ -309,17 +318,17 @@ class PaymentController extends Controller
             $transaction = $transactions[0];
 
 
-            if($transaction->type_name == "Platinum"){
+            if ($transaction->type_name == "Platinum") {
                 return response()->json(['message' => 'CANT UPGRADE'], 200);
-            }else{
+            } else {
                 $variance = $transaction->variance_name;
                 $durasi = $transaction->durasi;
                 $ket_durasi = $transaction->created_at;
-                if ($transaction->type_name == "Private"){
+                if ($transaction->type_name == "Private") {
                     $type_name = '("Platinum")';
-                }else if($transaction->type_name == "Sharing"){
+                } else if ($transaction->type_name == "Sharing") {
                     $type_name = '("Private", "Platinum")';
-                }else{
+                } else {
                     return response()->json(['message' => 'TYPE NAME UNDEFINED'], 200);
                 }
             }
@@ -339,7 +348,7 @@ class PaymentController extends Controller
             }
 
             return response()->json([
-                "current_product"=>$transaction,
+                "current_product" => $transaction,
                 'products' => $result
             ], 200);
         } catch (\Exception $e) {

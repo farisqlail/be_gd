@@ -50,6 +50,7 @@ class transactionController extends Controller
             // Fetch transactions with a status of 'completed'  
             $transactions = transaction::with(['price.product'])
                 ->where('status_pembayaran', 'Lunas')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             $transactions = $transactions->map(function ($transaction) {
