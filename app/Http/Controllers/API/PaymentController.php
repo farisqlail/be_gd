@@ -292,8 +292,14 @@ class PaymentController extends Controller
     {
         try {
             $currentDate = now();
-            $dateThreshold = $currentDate->subDays(10);
+            $dateThreshold = $currentDate->subDays(2);
             $transactions = transaction::currentProduct($request->get('email'),$dateThreshold);
+
+            $transaction = $transactions[0];
+
+            if ($transaction->created_at <= $dateThreshold) {
+                return response()->json(['message' => 'CANNOT UPGRADE'], 200);
+            }
 
             if (empty($transactions)) {
                 return response()->json(['message' => 'NOT FOUND'], 200);
@@ -308,7 +314,7 @@ class PaymentController extends Controller
             }else{
                 $variance = $transaction->variance_name;
                 $durasi = $transaction->durasi;
-                $ket_durasi = $transaction->ket_durasi;
+                $ket_durasi = $transaction->created_at;
                 if ($transaction->type_name == "Private"){
                     $type_name = '("Platinum")';
                 }else if($transaction->type_name == "Sharing"){

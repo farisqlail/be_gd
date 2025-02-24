@@ -28,25 +28,22 @@ class transaction extends Model
         'payment_method'
     ];
 
-    public static function indexTransaction($idTransaksi=null){
+    public static function indexTransaction($idTransaksi=null,$idUser=null){
         $today=date("Y-m-d");
         $query='
             with detailProduct as (
-                select v.variance_name,pt.type_name,p.id,p.id_varian, concat(variance_name," ",type_name," ",durasi," ",ket_durasi) as detail
+                select v.variance_name,pt.type_name,p.id,p.id_varian, concat(variance_name," ",type_name," ",durasi," ",ket_durasi) as detail,kode_produk
                 from products p join variances v on p.id_varian=v.id
                 join product_types pt on p.id_jenis=pt.id
-                where p.deleted=false
             ),
             detailToko as (
                 select st.*,p.nama_platform
                 from sumber_transaksis st join platforms p on st.id_platform=p.id
-                where st.deleted=false
             ),
             detailPrices as (
-                select p.*, dp.detail,dt.nama_platform,dt.nama_sumber,id_platform,id_varian
+                select p.*, dp.detail,dt.nama_platform,dt.nama_sumber,id_platform,id_varian,kode_produk
                 from prices p join detailProduct dp on p.id_produk=dp.id
                 join detailToko dt on p.id_toko=dt.id
-                where p.deleted=false
             ),
             detailAkuns as (
                 select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi
@@ -54,21 +51,19 @@ class transaction extends Model
                 join detail_transactions dt on da.id=dt.id_detail_akun
             )
 
-                select dp.detail,nama_platform,nama_sumber,t.*,dp.id_produk,email,nomor_akun,id_platform,dp.id_toko
-                from transactions t join detailPrices dp on t.id_price=dp.id
-                left join detailAkuns da on t.id=da.id_transaksi
-                where tanggal_pembelian="'.$today.'"';
+            select dp.detail,nama_platform,nama_sumber,t.*,dp.id_produk,email,nomor_akun,id_platform,dp.id_toko,dp.kode_produk
+            from transactions t join detailPrices dp on t.id_price=dp.id
+            left join detailAkuns da on t.id=da.id_transaksi
+            where tanggal_pembelian="'.$today.'" and id_user='.$idUser;
 
             if ($idTransaksi) {
-                $query .= '  and t.id='.$idTransaksi;
+                $query .= ' and t.id='.$idTransaksi;
             }
 
-            // select t.*,da.*,dt.keterangan
-            // from detail_transactions dt join transaksis t on dt.id_transaksi=t.id
-            // join detailAkuns da on dt.id_detail_akun=da.id
+            
         return DB::select($query);
     }
-
+    
     public static function currentProduct($email_account, $dateThreshold){
         $today=date("Y-m-d");
         $query='
@@ -105,19 +100,19 @@ class transaction extends Model
             // join detailAkuns da on dt.id_detail_akun=da.id
         return DB::select($query);
     }
-
+    
     public static function claimTransaction($transaksi_uuid=null){
         $query='
             with detailAkun as(
-                select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi,a.id_produk
+                select da.*,a.email,a.password,a.nomor_akun,dc.id_checkout,a.id_produk
                 from akuns a join detail_akuns da on a.id=da.id_akun
-                join detail_transactions dt on da.id=dt.id_detail_akun
+                join detail_checkouts dc on da.id=dc.id_detail_akun
             )
             select da.email, da.password, da.profile, da.pin, tc.template
-            from transactions t 
-            join detailAkun da on t.id = da.id_transaksi
+            from checkouts c 
+            join detailAkun da on c.id = da.id_checkout
             join template_chats tc on tc.id_produk = da.id_produk
-            where t.kode_transaksi = "'.$transaksi_uuid.'"';
+            where c.transaction_code = "'.$transaksi_uuid.'"';
 
 
 
@@ -131,9 +126,11 @@ class transaction extends Model
     {  
         return $this->belongsTo(Customer::class, 'id_customer');  
     }  
-
+    
+  
     public function price()  
     {  
-        return $this->belongsTo(Price::class, 'id_price', 'id'); // Adjust foreign key and local key as necessary  
-    }  
+        return $this->belongsTo(price::class, 'id_price', 'id'); // Adjust foreign key and local key as necessary  
+    }   
+
 }

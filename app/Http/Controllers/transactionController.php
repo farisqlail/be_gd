@@ -3,18 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\akun;
+use App\Models\kode_akun;
 use App\Models\Checkout;
-use App\Models\Customer;
 use App\Models\detail_transaction;
+use App\Models\detail_checkout;
 use App\Models\detailAkun;
 use App\Models\payment_method;
 use App\Models\platform;
 use App\Models\price;
-use App\Models\product;
+use App\Models\Customer;
+use Illuminate\Support\Str;
 use App\Models\sumberTransaksi;
 use App\Models\transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class transactionController extends Controller
 {
@@ -24,9 +27,15 @@ class transactionController extends Controller
     public function index()
     {
         try {
-            $transaksi = transaction::indexTransaction();
+            $transaksi = transaction::indexTransaction(idUser:Auth::user()->id);
             $payments = payment_method::where('deleted', false)->get();
-            return view('Menu.Transaksi.transaksi', compact('transaksi', 'payments'));
+            $idWA=User::findTimWA(Auth::user()->id);
+            if ($idWA) {
+                $checkouts=Checkout::indexCheckout(idWA:$idWA[0]->wa,status:1);
+            } else {
+                $checkouts=[];
+            }
+                return view('Menu.Transaksi.masterTransaksi', compact('transaksi', 'payments','checkouts'));
             //code...
         } catch (\Throwable $th) {
             return response()->json([
@@ -34,13 +43,13 @@ class transactionController extends Controller
             ]);
         }
     }
-
+    
     public function indexHistory(Request $request)
     {
         try {
             // Fetch transactions with a status of 'completed'  
-            $transactions = Transaction::with(['price.product'])
-                ->where('status', 'completed')
+            $transactions = transaction::with(['price.product'])
+                ->where('status_pembayaran', 'Lunas')
                 ->get();
 
             $transactions = $transactions->map(function ($transaction) {
@@ -52,7 +61,7 @@ class transactionController extends Controller
                     'tanggal_pembelian' => $transaction->tanggal_pembelian,
                     'harga' => $transaction->harga,
                     'status' => $transaction->status,
-                    'product_name' => $transaction->price->product->variance->variance_name ?? 'N/A', // Adjust based on your product field  
+                    'product_name' => $transaction->price->product->variance->variance_name ?? 'N/A',
                 ];
             });
 
@@ -67,7 +76,7 @@ class transactionController extends Controller
 
     public function indexTransactionPending()
     {
-        $transactions = Checkout::where('payment_status', 'PENDING')
+         $transactions = Checkout::where('payment_status', 'PENDING')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -77,44 +86,62 @@ class transactionController extends Controller
     public function updateTransactionPending(Request $request, $id)
     {
         $checkout = Checkout::where('transaction_code', $id)->first();
-
-        if ($checkout) {
-            $checkout->payment_status = 'PAID';
-            $checkout->save();
-
-            if ($checkout->created_at) {
-                try {
-                    Transaction::create([
-                        'id_user' => 1,
-                        'id_price' => $checkout->id_price,
-                        'id_customer' => $checkout->id_customer ? $checkout->id_customer : null,
-                        'nama_customer' => $checkout->customer_name,
-                        'kode_transaksi' => $checkout->transaction_code,
-                        'tanggal_pembelian' => $checkout->created_at,
-                        'tanggal_berakhir' => $checkout->created_at->addDays(30), // Safely add days  
-                        'harga' => $checkout->amount,
-                        'wa' => $checkout->phone_customer,
-                        'status' => 'Active',
-                        'link_wa' => '',
-                        'status_pembayaran' => 'Lunas',
-                        'promo' => $checkout->id_promo ? $checkout->id_promo : 0,
-                        'payment_method' => $checkout->payment_method,
-                    ]);
-
-                    $customer = Customer::where('id', $checkout->id_customer ? $checkout->id_customer : null)->first();
-                    if ($customer) {
-                        $customer->point += 50;
-                        $customer->save();
+            if ($checkout) {
+                $checkout->payment_status = 'PAID';
+                $checkout->save();
+    
+                $getAccount=Checkout::getAccount($id);
+                $getKodeAkun=kode_akun::where('id_detail_akun',$getAccount[0]->id_detail_akun)->first();
+                detail_checkout::create([
+                    'id_checkout'=>$getAccount[0]->id_checkout,
+                    'id_detail_akun'=>$getAccount[0]->id_detail_akun,
+                    'keterangan'=>$getKodeAkun->kode
+                ]);
+    
+                akun::where('id',$getAccount[0]->id_akun)->update([
+                    'jumlah_pengguna'=>$getAccount[0]->qty_akun+1
+                ]);
+    
+                detailAkun::where('id',$getAccount[0]->id_detail_akun)->update([
+                    'jumlah_pengguna'=>$getAccount[0]->jumlah_pengguna+1
+                ]);
+                
+                if ($checkout->created_at) {
+                    try {
+                        Transaction::create([
+                            'id_user' => 1,
+                            'id_price' => $checkout->id_price,
+                            'id_customer' => $checkout->id_customer ? $checkout->id_customer : null,
+                            'nama_customer' => $checkout->customer_name,
+                            'kode_transaksi' => $getKodeAkun->kode,
+                            'tanggal_pembelian' => $checkout->created_at,
+                            'tanggal_berakhir' => $checkout->created_at->addDays(30), // Safely add days  
+                            'harga' => $checkout->amount,
+                            'wa' => $checkout->phone_customer,
+                            'status' => 'Active',
+                            'link_wa' => '',
+                            'status_pembayaran' => 'Lunas',
+                            'promo' => $checkout->id_promo ? $checkout->id_promo : 0,
+                            'payment_method' => $checkout->payment_method,
+                        ]);
+                        
+                        $customer = Customer::where('id', $checkout->id_customer ? $checkout->id_customer : null)->first();
+                        if ($customer) {
+                            $customer->point += 50;
+                            $customer->save();
+                        }
+                        
+                    } catch (\Exception $e) {
+                        return redirect()->route('transactions.pending.index')->with('error', 'Failed to create transaction: ' . $e->getMessage());
                     }
-                } catch (\Exception $e) {
-                    return redirect()->route('transactions.pending.index')->with('error', 'Failed to create transaction: ' . $e->getMessage());
+                } else {
+                    return redirect()->route('transactions.pending.index')->with('error', 'Created at timestamp is missing.');
                 }
-            } else {
-                return redirect()->route('transactions.pending.index')->with('error', 'Created at timestamp is missing.');
+    
+                return redirect()->route('transactions.pending.index')->with('success', 'Transaction updated successfully.');
             }
-
-            return redirect()->route('transactions.pending.index')->with('success', 'Transaction updated successfully.');
-        }
+        
+       
 
         return redirect()->route('transactions.pending.index')->with('error', 'Transaction not found.');
     }
@@ -143,8 +170,10 @@ class transactionController extends Controller
     {
         try {
             $sumber = sumberTransaksi::where('id_platform', $request->query('id_platform'))->get();
+            $kode=Str::uuid()->toString();
             return response()->json([
-                'sumbers' => $sumber
+                'sumbers' => $sumber,
+                'kode'=>$kode
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -170,6 +199,15 @@ class transactionController extends Controller
     public function updateStatus(Request $request)
     {
         transaction::where('id', $request->id)->update([
+            'status' => $request->status
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+    }
+   
+    public function updateStatusCheckout(Request $request)
+    {
+        Checkout::where('id', $request->id)->update([
             'status' => $request->status
         ]);
 
@@ -248,7 +286,7 @@ class transactionController extends Controller
                 $transaksi->save();
             }
 
-            $transaksi = transaction::indexTransaction();
+            $transaksi = transaction::indexTransaction(idUser:Auth::user()->id);
             return response()->json([
                 'transactions' => $transaksi,
                 'message' => "Data Berhasil Ditambahkan"
@@ -279,9 +317,40 @@ class transactionController extends Controller
             $detailTransaction->id_transaksi = $request->id;
             $detailTransaction->id_detail_akun = $request->profile;
             $detailTransaction->save();
-            $transaksi = transaction::indexTransaction();
+            $transaksi = transaction::indexTransaction(idUser:Auth::user()->id);
             return response()->json([
                 'transactions' => $transaksi,
+                'message' => "Data Berhasil Ditambahkan"
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+    
+    public function provideAkunCheckout(Request $request)
+    {
+        try {
+            Checkout::where('id', $request->id)->update([
+                'status' => 2,
+            ]);
+            $detailAkuns = detailAkun::find($request->profile);
+            detailAkun::where('id', $request->profile)->update([
+                'jumlah_pengguna' => $detailAkuns->jumlah_pengguna + 1
+            ]);
+
+            $akuns = akun::find($request->akun);
+            akun::where('id', $request->akun)->update([
+                'jumlah_pengguna' => $akuns->jumlah_pengguna + 1
+            ]);
+            $detailTransaction = new detail_transaction();
+            $detailTransaction->id_transaksi = $request->id;
+            $detailTransaction->id_detail_akun = $request->profile;
+            $detailTransaction->save();
+            $checkouts=Checkout::indexCheckout(idWA:$idWA[0]->wa,status:1);
+            return response()->json([
+                'checkouts' => $checkouts,
                 'message' => "Data Berhasil Ditambahkan"
             ]);
         } catch (\Throwable $th) {
@@ -362,7 +431,7 @@ class transactionController extends Controller
                 'link_wa' => $link_wa,
             ]);
 
-            $transaksi = transaction::indexTransaction();
+            $transaksi = transaction::indexTransaction(idUser:Auth::user()->id);
             return response()->json([
                 'transactions' => $transaksi,
                 'message' => "Data Berhasil Di update"
@@ -377,9 +446,21 @@ class transactionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        //
+        try {
+            $id=$request->query('id_trans');
+            transaction::where('id',$id)->delete();
+            $transaksi = transaction::indexTransaction(idUser:Auth::user()->id);
+            return response()->json([
+                'transactions' => $transaksi,
+                'message' => "Data Berhasil Di Delete"
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ]);
+        }
     }
 
     public function fetchAkun(Request $request)
@@ -392,6 +473,25 @@ class transactionController extends Controller
 
             return response()->json([
                 'transaksi' => $transaction,
+                'akuns' => $akun
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+    
+    public function fetchAkunCheckout(Request $request)
+    {
+        try {
+            $id_transaksi = $request->query('id_trans');
+            $id_produk = $request->query('id_produk');
+            $transaction = Checkout::indexCheckout(idTransaction: $id_transaksi);
+            $akun = akun::fetchAkun($id_produk);
+
+            return response()->json([
+                'checkouts' => $transaction,
                 'akuns' => $akun
             ]);
         } catch (\Throwable $th) {
