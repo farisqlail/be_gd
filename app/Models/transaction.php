@@ -85,15 +85,15 @@ class transaction extends Model
             where p.deleted=false
         ),
         detailAkuns as (
-            select da.*,a.email,a.password,a.nomor_akun,dt.id_transaksi
+            select da.*,a.email,a.password,a.nomor_akun,dc.id_checkout
             from akuns a join detail_akuns da on a.id=da.id_akun
-            join detail_transactions dt on da.id=dt.id_detail_akun
+            join detail_checkouts dc on da.id=dc.id_detail_akun
         )
         
-            select distinct dp.*, t.nama_customer
-            from transactions t join detailPrices dp on t.id_price=dp.id
-            left join detailAkuns da on t.id=da.id_transaksi        
-            where da.email="'.$email_account.'" and t.tanggal_berakhir >="'.$dateThreshold.'"' ;
+            select distinct dp.*, c.customer_name as nama_customer
+            from checkouts c join detailPrices dp on c.id_price=dp.id
+            left join detailAkuns da on c.id=da.id_checkout        
+            where da.email="'.$email_account.'" and c.updated_at >="'.$dateThreshold.'"' ;
 
             // select t.*,da.*,dt.keterangan
             // from detail_transactions dt join transaksis t on dt.id_transaksi=t.id

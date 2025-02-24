@@ -91,10 +91,10 @@ class price extends Model
             $query .= ' and dp.type_name in ' . $type_name . '';
         }
         if ($durasi) {
-            $query .= ' and dp.durasi="' . $durasi . '"';
+            $query .= ' and dp.durasi >= "' . $durasi . '"';
         }
         if ($ket_durasi) {
-            $query .= ' and dp.ket_durasi="' . $ket_durasi . '"';
+            $query .= ' and dp.ket_durasi in ' . $ket_durasi . '';
         }
 
         

@@ -323,7 +323,13 @@ class PaymentController extends Controller
             } else {
                 $variance = $transaction->variance_name;
                 $durasi = $transaction->durasi;
-                $ket_durasi = $transaction->created_at;
+                
+                if($transaction->ket_durasi == "Bulan"){
+                    $ket_durasi = '("Bulan")'; 
+                }else if($transaction->ket_durasi == "Hari"){
+                    $ket_durasi = '("Bulan", "Hari")'; 
+                }
+
                 if ($transaction->type_name == "Private") {
                     $type_name = '("Platinum")';
                 } else if ($transaction->type_name == "Sharing") {
